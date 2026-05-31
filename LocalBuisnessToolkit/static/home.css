@@ -53,6 +53,52 @@ body {
     text-decoration: none;
 }
 
+.navbar .nav-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    color: #ffffff !important;
+    transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.navbar .nav-link::after {
+    position: absolute;
+    right: 0;
+    bottom: -6px;
+    left: 0;
+    height: 3px;
+    border-radius: 999px;
+    background: #2295ff;
+    content: "";
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus-visible,
+.navbar .nav-link.active {
+    color: #2295ff !important;
+    transform: translateY(-2px);
+}
+
+.navbar .nav-link:hover::after,
+.navbar .nav-link:focus-visible::after,
+.navbar .nav-link.active::after {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+.navbar .navbar-brand {
+    transition: color 0.25s ease;
+}
+
+.navbar .navbar-brand:hover,
+.navbar .navbar-brand:focus-visible {
+    color: #2295ff !important;
+}
+
 .hero {
     display: flex;
     align-items: center;
@@ -119,4 +165,14 @@ body {
         font-size: 34px;
         text-decoration-thickness: 4px;
     }
+}
+
+/* About Us image hover effect */
+#about img {
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+#about img:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
 }
