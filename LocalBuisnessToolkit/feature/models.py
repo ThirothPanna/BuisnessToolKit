@@ -1,5 +1,8 @@
 from django.db import models
-
+from django.contrib.auth.models import Group
+def create_roles():
+    for role in ["BusinessOwner", "Staff", "Customer"]:
+        Group.objects.get_or_create(name=role)
 class Customer(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)

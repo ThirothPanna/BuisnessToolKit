@@ -1,10 +1,20 @@
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from .models import Appointment, Customer, Invoice, Notification
 
 def home(request):
     return render(request, 'home.html')
+
+
+def is_business_owner(user):
+    return user.is_superuser or user.groups.filter(name="BusinessOwner").exists()
+
+
+@login_required
+@user_passes_test(is_business_owner)
 def dashboard(request):
     context = {
+        "message": f"Welcome {request.user.username}, you are a Business Owner!",
         "appointments_count": Appointment.objects.count(),
         "customers_count": Customer.objects.count(),
         "invoices_unpaid": Invoice.objects.filter(status="unpaid").count(),
