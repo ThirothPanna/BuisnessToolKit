@@ -1,0 +1,22 @@
+{% extends "allauth/layouts/base.html" %}
+{% load i18n allauth account %}
+
+{% block head_title %}{% trans "Sign Out" %}{% endblock %}
+{% block header_title %}{% trans "Sign Out" %}{% endblock %}
+{% block header_subtitle %}{% trans "Are you sure you want to sign out?" %}{% endblock %}
+
+{% block content %}
+<form method="post" action="{% url 'account_logout' %}">
+    {% csrf_token %}
+    
+    {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+    {% endif %}
+    
+    <button type="submit" class="btn btn-primary">{% trans "Sign Out" %}</button>
+    
+    <div class="auth-footer">
+        <p><a href="{% url 'feature:dashboard' %}">{% trans "Cancel, take me back" %}</a></p>
+    </div>
+</form>
+{% endblock %}

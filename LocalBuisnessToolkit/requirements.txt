@@ -1,0 +1,6 @@
+Django>=5
+django-allauth
+django-allauth-ui
+django-widget-tweaks
+slippers
+python-decouple

@@ -1,0 +1,77 @@
+{% extends "allauth/layouts/base.html" %}
+{% load i18n allauth account %}
+
+{% block head_title %}{% trans "Email Addresses" %}{% endblock %}
+{% block header_title %}{% trans "Email Settings" %}{% endblock %}
+{% block header_subtitle %}{% trans "Manage your email addresses" %}{% endblock %}
+
+{% block content %}
+{% if emailaddresses %}
+<div style="overflow-x: auto;">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>{% trans "Email" %}</th>
+                <th>{% trans "Status" %}</th>
+                <th>{% trans "Actions" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for emailaddress in emailaddresses %}
+            <tr>
+                <td>{{ emailaddress.email }}</td>
+                <td>
+                    {% if emailaddress.primary %}
+                        <span class="badge badge-primary">{% trans "Primary" %}</span>
+                    {% endif %}
+                    {% if emailaddress.verified %}
+                        <span class="badge badge-success">{% trans "Verified" %}</span>
+                    {% else %}
+                        <span class="badge badge-warning">{% trans "Unverified" %}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="post" action="{% url 'account_email' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="email" value="{{ emailaddress.email }}">
+                        
+                        {% if not emailaddress.primary %}
+                            <button type="submit" name="action_primary" class="btn-sm btn-primary">
+                                {% trans "Make Primary" %}
+                            </button>
+                        {% endif %}
+                        
+                        {% if not emailaddress.verified %}
+                            <button type="submit" name="action_send" class="btn-sm btn-outline">
+                                {% trans "Re-send" %}
+                            </button>
+                        {% endif %}
+                        
+                        <button type="submit" name="action_remove" class="btn-sm btn-outline" 
+                                onclick="return confirm('{% trans "Remove this email address?" %}')">
+                            {% trans "Remove" %}
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    <div class="alert alert-info">
+        {% trans "No email addresses associated with your account." %}
+    </div>
+{% endif %}
+
+<hr style="margin: 1.5rem 0;">
+
+<h4 style="margin-bottom: 1rem;">{% trans "Add Email Address" %}</h4>
+<form method="post" action="{% url 'account_email' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <input type="email" name="email" class="form-control" placeholder="{% trans 'Enter new email address' %}" required>
+    </div>
+    <button type="submit" name="action_add" class="btn btn-primary">{% trans "Add Email" %}</button>
+</form>
+{% endblock %}

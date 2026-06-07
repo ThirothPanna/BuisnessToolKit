@@ -1,0 +1,14 @@
+{% load allauth %}
+<div class="mb-3">
+    <label class="form-label">{{ field.label }}</label>
+    <input type="{{ field.field.widget.input_type }}" 
+           name="{{ field.name }}" 
+           value="{{ field.value|default:'' }}"
+           class="form-control"
+           {% if field.errors %}aria-invalid="true"{% endif %}>
+    {% if field.errors %}
+        <div class="invalid-feedback d-block">
+            {% for error in field.errors %}{{ error }}{% endfor %}
+        </div>
+    {% endif %}
+</div>

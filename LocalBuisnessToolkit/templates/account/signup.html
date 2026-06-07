@@ -1,0 +1,64 @@
+{% extends "allauth/layouts/base.html" %}
+{% load i18n allauth account %}
+
+{% block head_title %}{% trans "Sign Up" %}{% endblock %}
+{% block header_title %}{% trans "Create Account" %}{% endblock %}
+{% block header_subtitle %}{% trans "Join Expert Life today" %}{% endblock %}
+
+{% block content %}
+<form method="post" action="{% url 'account_signup' %}">
+    {% csrf_token %}
+    
+    {% if form.non_field_errors %}
+        <div class="alert alert-error">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="form-group">
+        <label>{% trans "Email" %}</label>
+        <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
+        {% if form.email.errors %}
+            <small class="text-danger">{{ form.email.errors }}</small>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <label>{% trans "Username" %}</label>
+        <input type="text" name="username" class="form-control" placeholder="Choose a username" required>
+        {% if form.username.errors %}
+            <small class="text-danger">{{ form.username.errors }}</small>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <label>{% trans "Password" %}</label>
+        <input type="password" name="password1" class="form-control" placeholder="Create a password" required>
+        {% if form.password1.errors %}
+            <small class="text-danger">{{ form.password1.errors }}</small>
+        {% endif %}
+        <div class="password-requirements">
+            <small>{% trans "Password must:" %}</small>
+            <ul>
+                <li>{% trans "Be at least 4 characters long" %}</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label>{% trans "Confirm Password" %}</label>
+        <input type="password" name="password2" class="form-control" placeholder="Confirm your password" required>
+        {% if form.password2.errors %}
+            <small class="text-danger">{{ form.password2.errors }}</small>
+        {% endif %}
+    </div>
+    
+    <button type="submit" class="btn btn-primary">{% trans "Sign Up" %}</button>
+    
+    <div class="auth-footer">
+        <p>{% trans "Already have an account?" %} <a href="{% url 'account_login' %}">{% trans "Sign In" %}</a></p>
+    </div>
+</form>
+{% endblock %}
