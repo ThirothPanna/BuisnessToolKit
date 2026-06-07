@@ -1,13 +1,33 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import Group
+
+
 def create_roles():
     for role in ["BusinessOwner", "Staff", "Customer"]:
         Group.objects.get_or_create(name=role)
+
+
 class Customer(models.Model):
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="customers",
+        blank=True,
+        null=True,
+    )
     name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
+    email = models.EmailField()
     phone = models.CharField(max_length=20, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["owner", "email"],
+                name="unique_customer_email_per_owner",
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -38,6 +58,13 @@ class Invoice(models.Model):
 
 
 class Notification(models.Model):
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+        blank=True,
+        null=True,
+    )
     message = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)

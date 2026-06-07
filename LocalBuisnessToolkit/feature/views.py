@@ -13,13 +13,18 @@ def is_business_owner(user):
 @login_required
 @user_passes_test(is_business_owner)
 def dashboard(request):
+    customers = Customer.objects.filter(owner=request.user)
+    appointments = Appointment.objects.filter(customer__owner=request.user)
+    invoices = Invoice.objects.filter(customer__owner=request.user)
+    notifications = Notification.objects.filter(owner=request.user)
+
     context = {
         "message": f"Welcome {request.user.username}, you are a Business Owner!",
-        "appointments_count": Appointment.objects.count(),
-        "customers_count": Customer.objects.count(),
-        "invoices_unpaid": Invoice.objects.filter(status="unpaid").count(),
-        "notifications_count": Notification.objects.count(),
-        "recent_appointments": Appointment.objects.order_by("-date")[:5],
-        "recent_invoices": Invoice.objects.order_by("-created_at")[:5],
+        "appointments_count": appointments.count(),
+        "customers_count": customers.count(),
+        "invoices_unpaid": invoices.filter(status="unpaid").count(),
+        "notifications_count": notifications.count(),
+        "recent_appointments": appointments.order_by("-date")[:5],
+        "recent_invoices": invoices.order_by("-created_at")[:5],
     }
     return render(request, "dashboard.html", context)
