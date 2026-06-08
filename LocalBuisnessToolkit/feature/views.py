@@ -7,7 +7,7 @@ from .models import Appointment, Customer, Invoice, Notification
 
 
 def home(request):
-    return render(request, 'feature/home.html')  # ✅ Fixed - added 'feature/'
+    return render(request, 'feature/home.html') 
 
 
 def is_business_owner(user):
@@ -23,7 +23,7 @@ def dashboard(request):
     notifications = Notification.objects.filter(owner=request.user)
 
     context = {
-        "message": f"Welcome {request.user.username}, you are a Business Owner!",
+        "message": f"Welcome {request.user.username}",
         "appointments_count": appointments.count(),
         "customers_count": customers.count(),
         "invoices_unpaid": invoices.filter(status="unpaid").count(),
