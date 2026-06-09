@@ -11,58 +11,71 @@
 </head>
 <body class="bg-light">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-      <div class="container-fluid">
+    <div class="container-fluid">
         <a class="navbar-brand fw-bold fs-3 text-white" href="#">EXPERT LIFE</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
         </button>
-        <div
-          class="collapse navbar-collapse justify-content-end"
-          id="navbarNav"
-        >
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a
-                class="nav-link fw-bold text-white fs-5"
-                href="{% url 'feature:home' %}"
-                >Home</a
-              >
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link fw-bold text-white fs-5"
-                href="{% url 'feature:dashboard' %}"
-                >Dashboard</a
-              >
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active fw-bold text-white fs-5" href="{% url 'feature:appointments' %}"
-                >Appointments</a
-              >
-            </li>
-            <li class="nav-item">
-              <a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:invoices' %}">Invoices</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:notifications' %}"
-                >Notifications</a
-              >
-            </li>
-            <li class="nav-item">
-              <a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:settings' %}">Settings</a>
-            </li>
-          </ul>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:home' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:dashboard' %}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active fw-bold text-white fs-5" href="{% url 'feature:appointments' %}">Appointments</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:invoices' %}">Invoices</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:notifications' %}">Notifications</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:settings' %}">Settings</a>
+                </li>
+                
+                {% if user.is_authenticated %}
+                    <!-- Show when logged in -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle fw-bold text-white fs-5" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'feature:settings' %}"><i class="fas fa-cog"></i> Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'account_logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <!-- Show when logged out -->
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold btn btn-outline-light ms-2 px-3" href="{% url 'account_login' %}">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold btn btn-primary ms-2 px-3 text-white" href="{% url 'account_signup' %}">
+                            <i class="fas fa-user-plus"></i> Sign Up
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
         </div>
-      </div>
-    </nav>
+    </div>
+</nav>
 
-    <!-- ONLY SHOW THIS BIG BUTTON WHEN APPOINTMENTS EXIST -->
-{% if appointments_count > 0 %}
+
+
+<!-- ONLY SHOW CREATE BUTTON WHEN USER IS LOGGED IN AND APPOINTMENTS EXIST -->
+{% if user.is_authenticated and appointments_count > 0 %}
 <div class="text-center my-4">
     <a href="{% url 'feature:appointment_create' %}" 
        class="btn btn-lg px-5 py-3 rounded-4 fw-bold text-white"
@@ -75,55 +88,101 @@
         Create Your Appointments
     </a>
 </div>
+{% elif not user.is_authenticated %}
+<!-- Show call to action for non-logged in users -->
+<div class="text-center my-4 p-4 bg-white rounded shadow-sm mx-3">
+    <i class="fas fa-lock fa-3x text-secondary mb-3"></i>
+    <h4 class="text-secondary">Want to create appointments?</h4>
+    <p class="text-muted">Sign up for free to start managing your business</p>
+</div>
 {% endif %}
 
-    <div class="container my-5">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h2 class="mb-4">Appointments</h2>
-                {% if appointments %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Customer</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for appointment in appointments %}
-                            <tr>
-                                <td>{{ appointment.customer.name }}</td>
-                                <td>{{ appointment.date|date:"M d, Y" }}</td>
-                                <td>{{ appointment.date|time:"g:i A" }}</td>
-                                <td>
-                                    <span class="badge bg-primary">Scheduled</span>
-                                </td>
-                                <td>
-                                    <a href="{% url 'feature:appointment_detail' appointment.id %}" class="btn btn-info btn-sm text-white">View</a>
-                                    <a href="{% url 'feature:appointment_edit' appointment.id %}" class="btn btn-primary btn-sm">Edit</a>
-                                    <a href="{% url 'feature:appointment_delete' appointment.id %}" class="btn btn-danger btn-sm">Delete</a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-4">
+<div class="container my-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0"><i class="fas fa-calendar-alt me-2 text-primary"></i>Appointments</h2>
+                
+                <!-- Small create button for logged in users -->
+                {% if user.is_authenticated %}
+                <a href="{% url 'feature:appointment_create' %}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> New Appointment
+                </a>
+                {% endif %}
+            </div>
+            
+            {% if appointments %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><i class="fas fa-user"></i> Customer</th>
+                            <th><i class="fas fa-calendar-day"></i> Date</th>
+                            <th><i class="fas fa-clock"></i> Time</th>
+                            <th><i class="fas fa-tag"></i> Status</th>
+                            <th><i class="fas fa-tools"></i> Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appointment in appointments %}
+                        <tr>
+                            <td>{{ appointment.customer.name }}</a></td>
+                            <td>{{ appointment.date|date:"M d, Y" }}</a></td>
+                            <td>{{ appointment.date|time:"g:i A" }}</a></td>
+                            <td>
+                                <span class="badge bg-primary">Scheduled</span>
+                            </a>
+                            <td>
+                                {% if user.is_authenticated %}
+                                    <a href="{% url 'feature:appointment_detail' appointment.id %}" class="btn btn-info btn-sm text-white">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="{% url 'feature:appointment_edit' appointment.id %}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <a href="{% url 'feature:appointment_delete' appointment.id %}" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">
+                                        <i class="fas fa-lock"></i> <a href="{% url 'account_login' %}">Sign in</a> to manage
+                                    </span>
+                                {% endif %}
+                            </a>
+                         </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                {% if user.is_authenticated %}
+                    <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
                     <p class="text-muted fs-5">No appointments found.</p>
                     <a href="{% url 'feature:appointment_create' %}" class="btn btn-outline-success">
                         <i class="fas fa-plus me-1"></i> Create your first appointment
                     </a>
-                </div>
-                {% endif %}
-            </div>
+                {% else %}
+    <div class="text-center py-4">
+        <i class="bi bi-calendar2 fa-4x text-primary mb-3"></i>
+        <h4 class="text-secondary">See how appointments work</h4>
+        <p class="text-muted">Sign up to create and manage your appointments</p>
+        <div class="mt-3">
+            <a href="{% url 'account_signup' %}" class="btn btn-primary me-2">
+                <i class="fas fa-user-plus"></i> Sign Up Free
+            </a>
+            <a href="{% url 'account_login' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </a>
         </div>
     </div>
+{% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
