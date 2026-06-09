@@ -1,139 +1,212 @@
 {% load static %}
 <!doctype html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Invoices - Expert Life</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'home.css' %}">
-</head>
-<body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-    <div class="container-fluid">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="{% static 'home.css' %}" />
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+      <div class="container-fluid">
         <a class="navbar-brand fw-bold fs-3 text-white" href="#">EXPERT LIFE</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:home' %}">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:dashboard' %}">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:appointments' %}">Appointments</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:customers' %}">Customers</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active fw-bold text-white fs-5" href="{% url 'feature:invoices' %}">Invoices</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:notifications' %}">Notifications</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:settings' %}">Settings</a>
-                </li>
-                {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle fw-bold text-white fs-5" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle"></i> {{ user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{% url 'feature:settings' %}"><i class="fas fa-cog"></i> Settings</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form method="post" action="{% url 'account_logout' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link fw-bold btn btn-outline-light ms-2 px-3" href="{% url 'account_login' %}">
-                            <i class="fas fa-sign-in-alt"></i> Sign In
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link fw-bold btn btn-primary ms-2 px-3 text-white" href="{% url 'account_signup' %}">
-                            <i class="fas fa-user-plus"></i> Sign Up
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-    </div>
-</nav>
-
-<div class="container my-5">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="mb-1"><i class="fas fa-file-invoice-dollar me-2 text-primary"></i>Invoices</h2>
-                    <p class="text-muted mb-0">Review all invoices for your business and track payment status.</p>
-                </div>
-                <div class="text-end">
-                    <span class="badge bg-primary me-2">{{ invoices_count }} total</span>
-                    <span class="badge bg-success">Paid: {{ invoices_paid }}</span>
-                    <span class="badge bg-warning text-dark">Unpaid: {{ invoices_unpaid }}</span>
-                </div>
-            </div>
-
+        <div
+          class="collapse navbar-collapse justify-content-end"
+          id="navbarNav"
+        >
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a
+                class="nav-link fw-bold text-white fs-5"
+                href="{% url 'feature:home' %}"
+                >Home</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link fw-bold text-white fs-5"
+                href="{% url 'feature:dashboard' %}"
+                >Dashboard</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link fw-bold text-white fs-5"
+                href="{% url 'feature:appointments' %}"
+                >Appointments</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link fw-bold text-white fs-5"
+                href="{% url 'feature:customers' %}"
+                >Customers</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link active fw-bold text-white fs-5"
+                href="{% url 'feature:invoices' %}"
+                >Invoices</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link fw-bold text-white fs-5"
+                href="{% url 'feature:notifications' %}"
+                >Notifications</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link fw-bold text-white fs-5"
+                href="{% url 'feature:settings' %}"
+                >Settings</a
+              >
+            </li>
             {% if user.is_authenticated %}
-                {% if invoices %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Invoice</th>
-                                    <th>Customer</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for invoice in invoices %}
-                                    <tr>
-                                        <td>#{{ invoice.id }}</td>
-                                        <td>{{ invoice.customer.name }}</td>
-                                        <td>${{ invoice.amount }}</td>
-                                        <td>
-                                            <span class="badge {% if invoice.status == 'paid' %}bg-success{% elif invoice.status == 'unpaid' %}bg-danger{% else %}bg-secondary{% endif %}">
-                                                {{ invoice.get_status_display }}
-                                            </span>
-                                        </td>
-                                        <td>{{ invoice.created_at|date:'M d, Y' }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="alert alert-info mb-0">
-                        You don’t have any invoices yet. Create one by adding an appointment or using the admin panel.
-                    </div>
-                {% endif %}
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle fw-bold text-white fs-5"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-user-circle"></i> {{ user.username }}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="{% url 'feature:settings' %}"
+                    ><i class="fas fa-cog"></i> Settings</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <form method="post" action="{% url 'account_logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-item">
+                      <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </li>
             {% else %}
-                <div class="text-center my-4 p-4 bg-white rounded shadow-sm">
-                    <i class="fas fa-lock fa-3x text-secondary mb-3"></i>
-                    <h4 class="text-secondary">Invoices are visible after login.</h4>
-                    <p class="text-muted">Sign in to access and manage your invoices.</p>
-                    <a class="btn btn-primary mt-3" href="{% url 'account_login' %}"><i class="fas fa-sign-in-alt me-2"></i>Sign In</a>
-                </div>
+            <li class="nav-item">
+              <a
+                class="nav-link fw-bold btn btn-outline-light ms-2 px-3"
+                href="{% url 'account_login' %}"
+              >
+                <i class="fas fa-sign-in-alt"></i> Sign In
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link fw-bold btn btn-primary ms-2 px-3 text-white"
+                href="{% url 'account_signup' %}"
+              >
+                <i class="fas fa-user-plus"></i> Sign Up
+              </a>
+            </li>
             {% endif %}
+          </ul>
         </div>
-    </div>
-</div>
+      </div>
+    </nav>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <div class="container my-5">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h2 class="mb-1">
+                <i class="fas fa-file-invoice-dollar me-2 text-primary"></i
+                >Invoices
+              </h2>
+              <p class="text-muted mb-0">
+                Review all invoices for your business and track payment status.
+              </p>
+            </div>
+            <div class="text-end">
+              <span class="badge bg-primary me-2"
+                >{{ invoices_count }} total</span
+              >
+              <span class="badge bg-success">Paid: {{ invoices_paid }}</span>
+              <span class="badge bg-warning text-dark"
+                >Unpaid: {{ invoices_unpaid }}</span
+              >
+            </div>
+          </div>
+
+          {% if user.is_authenticated %} {% if invoices %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th>Invoice</th>
+                  <th>Customer</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for invoice in invoices %}
+                <tr>
+                  <td>#{{ invoice.id }}</td>
+                  <td>{{ invoice.customer.name }}</td>
+                  <td>${{ invoice.amount }}</td>
+                  <td>
+                    <span
+                      class="badge {% if invoice.status == 'paid' %}bg-success{% elif invoice.status == 'unpaid' %}bg-danger{% else %}bg-secondary{% endif %}"
+                    >
+                      {{ invoice.get_status_display }}
+                    </span>
+                  </td>
+                  <td>{{ invoice.created_at|date:'M d, Y' }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="alert alert-info mb-0">
+            You don’t have any invoices yet. Create one by adding an appointment
+            or using the admin panel.
+          </div>
+          {% endif %} {% else %}
+          <div class="text-center my-4 p-4 bg-white rounded shadow-sm">
+            <i class="fas fa-lock fa-3x text-secondary mb-3"></i>
+            <h4 class="text-secondary">Invoices are visible after login.</h4>
+            <p class="text-muted">
+              Sign in to access and manage your invoices.
+            </p>
+            <a class="btn btn-primary mt-3" href="{% url 'account_login' %}"
+              ><i class="fas fa-sign-in-alt me-2"></i>Sign In</a
+            >
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
