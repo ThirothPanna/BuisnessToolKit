@@ -53,18 +53,28 @@ class InvoiceAdmin(OwnerScopedAdmin):
 
 
 class NotificationAdmin(OwnerScopedAdmin):
-    list_display = ("message", "owner", "created_at", "is_read")
-    list_filter = ("is_read",)
-
+    owner_lookup = "user"  # Changed to match your model's field name
+    list_display = ("title", "message", "user", "notification_type", "priority", "created_at", "is_read")
+    list_filter = ("is_read", "notification_type", "priority")
+    search_fields = ("title", "message", "user__username", "user__email")
+    readonly_fields = ("created_at",)
+    
     def get_exclude(self, request, obj=None):
         if request.user.is_superuser:
             return super().get_exclude(request, obj)
-        return ("owner",)
-
+        return ("user",)  # Hide the user field for non-superusers
+    
     def save_model(self, request, obj, form, change):
         if not request.user.is_superuser:
-            obj.owner = request.user
+            obj.user = request.user  # Auto-assign the current user
         super().save_model(request, obj, form, change)
+    
+    def get_queryset(self, request):
+        """Show users only their own notifications"""
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(user=request.user)
 
 
 # Register models with their admin classes

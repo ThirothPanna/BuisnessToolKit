@@ -1,0 +1,234 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notifications - Expert Life</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'home.css' %}" />
+    <link rel="stylesheet" href="{% static 'dashboard.css' %}" />
+</head>
+<body class="bg-light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold fs-3 text-white" href="#">EXPERT LIFE</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:home' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:dashboard' %}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:appointments' %}">Appointments</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:customers' %}">Customers</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:invoices' %}">Invoices</a></li>
+                    <li class="nav-item"><a class="nav-link active fw-bold text-white fs-5" href="{% url 'feature:notifications' %}">Notifications</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:settings' %}">Settings</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Notifications Content -->
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">
+                <i class="fas fa-bell me-2"></i>
+                Notifications
+                {% if unread_count > 0 %}
+                    <span class="badge bg-danger ms-2">{{ unread_count }} new</span>
+                {% endif %}
+            </h2>
+            <div>
+                <button class="btn btn-outline-secondary me-2" id="markAllReadBtn">
+                    <i class="fas fa-check-double me-1"></i> Mark All Read
+                </button>
+                <button class="btn btn-primary" id="refreshBtn">
+                    <i class="fas fa-sync-alt me-1"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold">Activity Timeline</h5>
+            </div>
+            <div class="card-body">
+                <div id="notificationsList">
+                    {% for notification in notifications %}
+                        <div class="notification-item {% if not notification.is_read %}unread{% endif %}" 
+                             data-id="{{ notification.id }}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas 
+                                            {% if notification.notification_type == 'appointment' %}fa-calendar-alt text-primary
+                                            {% elif notification.notification_type == 'invoice' %}fa-file-invoice-dollar text-success
+                                            {% elif notification.notification_type == 'customer' %}fa-user text-info
+                                            {% elif notification.notification_type == 'reminder' %}fa-clock text-warning
+                                            {% else %}fa-bell text-secondary{% endif %} 
+                                            me-2 fa-lg"></i>
+                                        <strong class="{% if not notification.is_read %}text-primary{% endif %}">
+                                            {{ notification.title }}
+                                        </strong>
+                                        <span class="ms-2 badge 
+                                            {% if notification.priority == 'high' %}bg-danger
+                                            {% elif notification.priority == 'medium' %}bg-warning
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ notification.get_priority_display }}
+                                        </span>
+                                    </div>
+                                    <p class="mb-2">{{ notification.message }}</p>
+                                    <small class="text-muted">
+                                        <i class="far fa-clock me-1"></i>
+                                        {{ notification.time_ago }}
+                                    </small>
+                                </div>
+                                <div>
+                                    {% if not notification.is_read %}
+                                        <button class="btn btn-sm btn-outline-primary mark-read-btn" 
+                                                data-id="{{ notification.id }}" title="Mark as read">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    {% endif %}
+                                    <button class="btn btn-sm btn-outline-danger delete-btn" 
+                                            data-id="{{ notification.id }}" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% if not forloop.last %}<hr>{% endif %}
+                    {% empty %}
+                        {% if user.is_authenticated %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-bell-slash fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">No notifications yet</h5>
+                            <p class="text-muted">When you create appointments or invoices, they'll appear here.</p>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-bell fa-4x text-secondary mb-3"></i>
+                            <h5 class="text-secondary">Signup to receive notifications</h5>
+                            <p class="text-muted">Create an account to get notified about appointments and invoices.</p>
+                            <a href="{% url 'account_signup' %}" class="btn btn-secondary text-white mt-3">Sign Up</a>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .notification-item {
+            padding: 1rem;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+        
+        .notification-item.unread {
+            background: linear-gradient(90deg, #f0f9ff 0%, #ffffff 100%);
+            border-left: 4px solid #0ea5e9;
+        }
+        
+        .notification-item:hover {
+            background-color: #f8fafc;
+            transform: translateX(5px);
+        }
+        
+        .btn-sm {
+            margin-left: 0.5rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            padding: 0;
+        }
+        
+        .badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        hr {
+            margin: 0.5rem 0;
+        }
+    </style>
+
+    <script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mark single notification as read
+        document.querySelectorAll('.mark-read-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const notificationId = this.dataset.id;
+                fetch(`/notifications/mark-read/${notificationId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) location.reload();
+                });
+            });
+        });
+        
+        // Mark all as read
+        document.getElementById('markAllReadBtn')?.addEventListener('click', function() {
+            fetch('/notifications/mark-all-read/', {
+                method: 'POST',
+                headers: {'X-CSRFToken': getCookie('csrftoken')}
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) location.reload();
+            });
+        });
+        
+        // Delete notification
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Delete this notification?')) {
+                    const notificationId = this.dataset.id;
+                    fetch(`/notifications/delete/${notificationId}/`, {
+                        method: 'POST',
+                        headers: {'X-CSRFToken': getCookie('csrftoken')}
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) location.reload();
+                    });
+                }
+            });
+        });
+        
+        // Refresh
+        document.getElementById('refreshBtn')?.addEventListener('click', function() {
+            location.reload();
+        });
+    });
+    </script>
+</body>
+</html>

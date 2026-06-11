@@ -56,8 +56,7 @@
             Are you sure you want to delete the appointment with
             <strong>{{ appointment.customer.name }}</strong> scheduled for
             <strong
-              >{{ appointment.date|date:'F j, Y' }} at {{
-              appointment.time|time:'g:i A' }}</strong
+              >{{ appointment.date|date:'F j, Y' }} at {{ appointment.date|time:'g:i A' }}</strong
             >?
           </p>
           <form method="post">

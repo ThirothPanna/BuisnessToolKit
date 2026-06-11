@@ -4,6 +4,9 @@ from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime
 from .models import Appointment, Customer, Invoice, Notification
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from .notification_utils import get_user_notifications, mark_all_as_read, get_unread_count
 
 
 # ========== PUBLIC VIEWS (Anyone can view) ==========
@@ -38,7 +41,7 @@ def dashboard(request):
         customers = Customer.objects.filter(owner=request.user)
         appointments = Appointment.objects.filter(customer__owner=request.user)
         invoices = Invoice.objects.filter(customer__owner=request.user)
-        notifications = Notification.objects.filter(owner=request.user)
+        notifications = Notification.objects.filter(user=request.user)
         
         context = {
             "message": f"Welcome {request.user.username}",
@@ -136,25 +139,7 @@ def invoices(request):
     return render(request, "feature/invoices.html", context)
 
 
-def notifications(request):
-    """Anyone can VIEW notifications, but to manage need login"""
-    if request.user.is_authenticated:
-        notifications = Notification.objects.filter(owner=request.user).order_by('-created_at')
-        context = {
-            "notifications": notifications,
-            "notifications_count": notifications.count(),
-            "unread_count": notifications.filter(is_read=False).count(),
-            "user_logged_in": True,
-        }
-    else:
-        context = {
-            "notifications": [],
-            "notifications_count": 0,
-            "unread_count": 0,
-            "user_logged_in": False,
-            "login_required": True,
-        }
-    return render(request, "feature/notifications.html", context)
+
 
 
 # ========== PROTECTED VIEWS (Require Login for Actions) ==========
@@ -170,48 +155,123 @@ def appointment_detail(request, appointment_id):
 
 @login_required
 def appointment_create(request):
+    customers = Customer.objects.filter(owner=request.user)
+    
+    if not customers.exists():
+        messages.warning(request, 'You need to add a customer before creating an appointment.')
+        return redirect('feature:customers')
+    
+    selected_customer_id = None
+    date_value = None
+    time_value = None
+    notes_value = None
+
+    if request.method == 'POST':
+        selected_customer_id = request.POST.get('customer_id')
+        date_value = request.POST.get('date')
+        time_value = request.POST.get('time')
+        notes_value = request.POST.get('notes')
+        
+        if not selected_customer_id or not date_value or not time_value:
+            messages.error(request, 'Please provide customer, date, and time.')
+            return render(request, "feature/appointment_form.html", {
+                "customers": customers,
+                "selected_customer_id": selected_customer_id,
+                "date_value": date_value,
+                "time_value": time_value,
+                "notes": notes_value,
+            })
+        
+        try:
+            customer = Customer.objects.get(id=selected_customer_id, owner=request.user)
+        except Customer.DoesNotExist:
+            messages.error(request, 'Invalid customer selected.')
+            return render(request, "feature/appointment_form.html", {
+                "customers": customers,
+                "selected_customer_id": selected_customer_id,
+                "date_value": date_value,
+                "time_value": time_value,
+                "notes": notes_value,
+            })
+        
+        try:
+            appointment_datetime = datetime.strptime(f"{date_value} {time_value}", "%Y-%m-%d %H:%M")
+            if timezone.is_naive(appointment_datetime):
+                appointment_datetime = timezone.make_aware(appointment_datetime, timezone.get_current_timezone())
+        except ValueError:
+            messages.error(request, 'Invalid date or time format.')
+            return render(request, "feature/appointment_form.html", {
+                "customers": customers,
+                "selected_customer_id": selected_customer_id,
+                "date_value": date_value,
+                "time_value": time_value,
+                "notes": notes_value,
+            })
+
+        if appointment_datetime < timezone.now():
+            messages.warning(request, 'You are creating an appointment in the past. Consider updating the date/time.')
+
+        appointment = Appointment.objects.create(
+            customer=customer,
+            date=appointment_datetime,
+            notes=notes_value,
+            user=request.user,
+        )
+        
+        messages.success(request, f'Appointment created successfully for {customer.name}!')
+        return redirect('feature:appointment_detail', appointment_id=appointment.id)
+
+    return render(request, "feature/appointment_form.html", {
+        "customers": customers,
+    })
+
+@login_required
+def appointment_edit(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id, customer__owner=request.user)
+    customers = Customer.objects.filter(owner=request.user)
+
     if request.method == 'POST':
         customer_id = request.POST.get('customer_id')
         date_str = request.POST.get('date')
         time_str = request.POST.get('time')
         notes = request.POST.get('notes')
         
-        appointment_datetime = None
-        if date_str and time_str:
-            appointment_datetime = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
-            if timezone.is_naive(appointment_datetime):
-                appointment_datetime = timezone.make_aware(appointment_datetime, timezone.get_current_timezone())
+        selected_customer_id = customer_id or appointment.customer_id
+        date_value = date_str
+        time_value = time_str
+        notes_value = notes
 
-        appointment = Appointment.objects.create(
-            customer_id=customer_id,
-            date=appointment_datetime,
-            notes=notes,
-        )
-        
-        messages.success(request, 'Appointment created successfully!')
-        return redirect('feature:appointment_detail', appointment_id=appointment.id)
-    
-    customers = Customer.objects.filter(owner=request.user)
-    context = {
-        "customers": customers,
-    }
-    return render(request, "feature/appointment_form.html", context)
-
-
-@login_required
-def appointment_edit(request, appointment_id):
-    appointment = get_object_or_404(Appointment, id=appointment_id, customer__owner=request.user)
-    
-    if request.method == 'POST':
-        date_str = request.POST.get('date')
-        time_str = request.POST.get('time')
-        notes = request.POST.get('notes')
+        if customer_id:
+            try:
+                customer = Customer.objects.get(id=customer_id, owner=request.user)
+                appointment.customer = customer
+            except Customer.DoesNotExist:
+                messages.error(request, 'Invalid customer selected.')
+                return render(request, "feature/appointment_form.html", {
+                    "appointment": appointment,
+                    "customers": customers,
+                    "selected_customer_id": selected_customer_id,
+                    "date_value": date_value,
+                    "time_value": time_value,
+                    "notes": notes_value,
+                })
 
         if date_str and time_str:
-            appointment_datetime = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
-            if timezone.is_naive(appointment_datetime):
-                appointment_datetime = timezone.make_aware(appointment_datetime, timezone.get_current_timezone())
-            appointment.date = appointment_datetime
+            try:
+                appointment_datetime = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+                if timezone.is_naive(appointment_datetime):
+                    appointment_datetime = timezone.make_aware(appointment_datetime, timezone.get_current_timezone())
+                appointment.date = appointment_datetime
+            except ValueError:
+                messages.error(request, 'Invalid date or time format.')
+                return render(request, "feature/appointment_form.html", {
+                    "appointment": appointment,
+                    "customers": customers,
+                    "selected_customer_id": selected_customer_id,
+                    "date_value": date_value,
+                    "time_value": time_value,
+                    "notes": notes_value,
+                })
 
         appointment.notes = notes
         appointment.save()
@@ -219,11 +279,14 @@ def appointment_edit(request, appointment_id):
         messages.success(request, 'Appointment updated successfully!')
         return redirect('feature:appointment_detail', appointment_id=appointment.id)
     
-    context = {
+    return render(request, "feature/appointment_form.html", {
         "appointment": appointment,
-        "customers": Customer.objects.filter(owner=request.user),
-    }
-    return render(request, "feature/appointment_form.html", context)
+        "customers": customers,
+        "selected_customer_id": appointment.customer_id,
+        "date_value": appointment.date.strftime('%Y-%m-%d') if appointment.date else '',  # Fixed
+        "time_value": appointment.date.strftime('%H:%M') if appointment.date else '',     # Fixed
+        "notes": appointment.notes,
+    })
 
 
 @login_required
@@ -262,3 +325,68 @@ def settings(request):
         "user": user,
     }
     return render(request, "feature/settings.html", context)
+def notification_center(request):
+    """Main notification page — visible to anonymous users with a signup prompt."""
+    if request.user.is_authenticated:
+        notifications = get_user_notifications(request.user, limit=50)
+        unread_count = get_unread_count(request.user)
+    else:
+        notifications = []
+        unread_count = 0
+
+    context = {
+        'notifications': notifications,
+        'unread_count': unread_count,
+        'show_signup_prompt': not request.user.is_authenticated,
+    }
+    return render(request, "feature/notifications.html", context)
+@login_required
+def get_notifications_api(request):
+    """AJAX endpoint to get notifications"""
+    limit = request.GET.get('limit', 20)
+    unread_only = request.GET.get('unread_only', False) == 'true'
+    
+    notifications = get_user_notifications(request.user, limit=int(limit), unread_only=unread_only)
+    unread_count = get_unread_count(request.user)
+    
+    notifications_data = []
+    for n in notifications:
+        notifications_data.append({
+            'id': n.id,
+            'title': n.title,
+            'message': n.message,
+            'type': n.notification_type,
+            'priority': n.priority,
+            'time_ago': n.time_ago(),
+            'is_read': n.is_read,
+            'created_at': n.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+        })
+    
+    return JsonResponse({
+        'notifications': notifications_data,
+        'unread_count': unread_count,
+        'total': notifications.count(),
+    })
+
+@login_required
+@require_POST
+def mark_notification_read(request, notification_id):
+    """Mark a single notification as read"""
+    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+    notification.mark_as_read()
+    return JsonResponse({'success': True})
+
+@login_required
+@require_POST
+def mark_all_read(request):
+    """Mark all notifications as read"""
+    mark_all_as_read(request.user)
+    return JsonResponse({'success': True})
+
+@login_required
+@require_POST
+def delete_notification(request, notification_id):
+    """Delete a notification"""
+    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+    notification.delete()
+    return JsonResponse({'success': True})

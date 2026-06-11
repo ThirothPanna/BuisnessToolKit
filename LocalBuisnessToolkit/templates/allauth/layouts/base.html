@@ -41,6 +41,33 @@
         color: #374151;
       }
 
+      /* Notification Dropdown Styles */
+      .notification-dropdown {
+        width: 350px;
+        max-height: 500px;
+        overflow-y: auto;
+      }
+      
+      .notification-item {
+        padding: 0.75rem;
+        border-bottom: 1px solid #e5e7eb;
+        transition: background-color 0.2s;
+        white-space: normal;
+      }
+      
+      .notification-item:hover {
+        background-color: #f9fafb;
+      }
+      
+      .notification-item.unread {
+        background-color: #f0f9ff;
+      }
+      
+      .dropdown-header {
+        padding: 0.75rem 1rem;
+        background-color: #f8fafc;
+      }
+
       .auth-container {
         min-height: 100vh;
         display: flex;
@@ -187,16 +214,6 @@
         text-decoration: underline;
       }
 
-      .form-control:focus {
-        outline: none;
-        border-color: #9ca3af;
-        box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.15);
-        background: #ffffff;
-        color: #111827 !important;
-        -webkit-text-fill-color: #111827 !important;
-        caret-color: #111827 !important;
-      }
-
       .form-control::placeholder {
         color: #9ca3af;
         font-weight: 500;
@@ -267,29 +284,6 @@
         background: rgba(156, 163, 175, 0.15);
         color: #475569;
         border: 1px solid rgba(156, 163, 175, 0.4);
-      }
-
-      .auth-footer {
-        text-align: center;
-        margin-top: 1.5rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid #e5e7eb;
-      }
-
-      .auth-footer p {
-        color: #6b7280;
-        font-size: 0.875rem;
-      }
-
-      .auth-footer a {
-        color: #4b5563;
-        text-decoration: none;
-        font-weight: 600;
-      }
-
-      .auth-footer a:hover {
-        text-decoration: underline;
-        color: #111827;
       }
 
       .password-requirements {
@@ -399,11 +393,45 @@
       a:hover {
         color: #a78bfa;
       }
+
+      /* Navbar styles */
+      .navbar {
+        background: white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        padding: 1rem 2rem;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+      
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+      }
+      
+      .navbar-nav {
+        display: flex;
+        gap: 1.5rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .nav-link {
+        color: #374151;
+        font-weight: 500;
+      }
+      
+      .nav-link:hover {
+        color: #6b7280;
+      }
     </style>
 
     {% block extra_head %}{% endblock %}
   </head>
   <body>
+
+    <!-- Main Content Area -->
     <div class="auth-container">
       <div class="auth-card">
         {% block body %}
@@ -414,26 +442,83 @@
           </div>
           <h2>{% block header_title %}EXPERT LIFE{% endblock %}</h2>
           <p>
-            {% block header_subtitle %}Professional Business Toolkit{% endblock
-            %}
+            {% block header_subtitle %}Professional Business Toolkit{% endblock %}
           </p>
         </div>
-        {% endblock %}
         <div class="auth-body">
-          {% if messages %} {% for message in messages %}
-          <div class="alert alert-{{ message.tags }}">
-            <i
-              class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} me-2"
-            ></i>
-            {{ message }}
-          </div>
-          {% endfor %} {% endif %} {% block content %} {% endblock %}
+          {% if messages %} 
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+              <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+              {{ message }}
+            </div>
+            {% endfor %} 
+          {% endif %} 
+          {% block content %} 
+          {% endblock %}
         </div>
         {% endblock %}
       </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function loadNotifications() {
+        fetch('/notifications/api/?limit=10')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('notificationBadge');
+                if (data.unread_count > 0) {
+                    badge.style.display = 'inline-block';
+                    badge.textContent = data.unread_count > 9 ? '9+' : data.unread_count;
+                } else {
+                    badge.style.display = 'none';
+                }
+                
+                const container = document.getElementById('notificationList');
+                if (data.notifications.length === 0) {
+                    container.innerHTML = '<div class="text-center py-3 text-muted">No new notifications</div>';
+                } else {
+                    container.innerHTML = data.notifications.map(n => `
+                        <div class="dropdown-item notification-item ${!n.is_read ? 'unread' : ''}">
+                            <div class="d-flex">
+                                <div class="flex-grow-1">
+                                    <small><strong>${n.title}</strong></small>
+                                    <div class="small text-muted">${n.message.substring(0, 80)}${n.message.length > 80 ? '...' : ''}</div>
+                                    <small class="text-muted">${n.time_ago}</small>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            })
+            .catch(error => console.error('Error loading notifications:', error));
+    }
+
+    // Load notifications when page loads
+    if (document.getElementById('notificationList')) {
+        loadNotifications();
+        // Reload every 30 seconds
+        setInterval(loadNotifications, 30000);
+    }
+    </script>
+    
     {% block extra_body %}{% endblock %}
   </body>
 </html>
