@@ -22,9 +22,9 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 48px;
-  max-width: 1440px;
+  width: 100%;
   min-height: 44px;
-  margin: 0 auto 36px;
+  margin: 0 0 36px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   background: linear-gradient(135deg, #202124 0%, #2c2f33 100%) !important;
 }

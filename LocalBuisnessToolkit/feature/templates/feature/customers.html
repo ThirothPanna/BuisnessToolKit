@@ -137,13 +137,13 @@
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h2 class="mb-1">
-                <i class="fas fa-users me-2 text-primary"></i>Customers
+                <i class="fas fa-users me-2 text-secondary"></i>Customers
               </h2>
               <p class="text-muted mb-0">
                 View and manage your business customer list.
               </p>
             </div>
-            <span class="badge bg-primary fs-6"
+            <span class="badge bg-secondary text-dark fs-6"
               >{{ customers_count }} total</span
             >
           </div>
@@ -183,7 +183,9 @@
             <p class="text-muted">
               Sign in to view and manage your customer list.
             </p>
-            <a class="btn btn-primary mt-3" href="{% url 'account_login' %}"
+            <a
+              class="btn btn-secondary mt-3 text-white"
+              href="{% url 'account_login' %}"
               ><i class="fas fa-sign-in-alt me-2"></i>Sign In</a
             >
           </div>
