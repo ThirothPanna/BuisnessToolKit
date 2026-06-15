@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ecooma - Customers</title>
+    <title>EXPERT LIFE - Customers</title>
     <style>
       * {
         margin: 0;
@@ -15,174 +15,212 @@
         font-family:
           -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           "Helvetica Neue", sans-serif;
-        background: #f5f6fa;
-        color: #2c3e50;
+        background: #f4f6fb;
+        color: #1a2c3e;
       }
 
-      /* Main Container */
-      .ecooma-container {
+      .app-container {
         display: flex;
         min-height: 100vh;
       }
 
-      /* Sidebar */
       .sidebar {
         width: 260px;
-        background: linear-gradient(135deg, #1a472a 0%, #0d2818 100%);
-        color: white;
-        padding: 2rem 1rem;
-        position: fixed;
+        background: white;
+        border-right: 1px solid #e9edf2;
+        padding: 2rem 1.5rem;
+        position: sticky;
+        top: 0;
         height: 100vh;
-        overflow-y: auto;
       }
 
       .logo {
-        font-size: 1.8rem;
-        font-weight: bold;
+        font-size: 1.6rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #1e6f5c, #2c8b76);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
         margin-bottom: 2rem;
-        padding: 0 1rem;
-        letter-spacing: 1px;
-      }
-
-      .logo span {
-        color: #4ade80;
       }
 
       .nav-menu {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.4rem;
       }
 
       .nav-item {
-        color: #e2e8f0;
-        text-decoration: none;
-        padding: 0.75rem 1rem;
-        border-radius: 10px;
-        transition: all 0.3s ease;
         display: flex;
         align-items: center;
         gap: 12px;
-        font-size: 1rem;
-      }
-
-      .nav-item:hover {
-        background: rgba(74, 222, 128, 0.2);
-        color: white;
+        padding: 0.7rem 1rem;
+        border-radius: 12px;
+        color: #4a5b6e;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
       }
 
       .nav-item.active {
-        background: #4ade80;
-        color: #1a472a;
+        background: #eef2fa;
+        color: #1e6f5c;
         font-weight: 600;
       }
 
-      /* Main Content */
-      .main-content {
-        flex: 1;
-        margin-left: 260px;
-        padding: 2rem;
+      .nav-item:hover:not(.active) {
+        background: #f8fafd;
       }
 
-      /* Header */
+      .main-content {
+        flex: 1;
+        padding: 2rem 2.5rem;
+      }
+
       .page-header {
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
       }
 
       .page-header h1 {
         font-size: 2rem;
-        color: #1a472a;
-        font-weight: 600;
+        font-weight: 700;
+        color: #1e2f3e;
       }
 
-      /* Search Section */
-      .search-section {
+      .page-header p {
+        color: #5e6f8d;
+        margin-top: 0.25rem;
+      }
+
+      .stats-card {
         background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        border-radius: 16px;
         margin-bottom: 2rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        display: inline-block;
+        border: 1px solid #eef2f8;
       }
 
-      .search-title {
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+      .stats-card .label {
+        font-size: 0.8rem;
         color: #64748b;
-        margin-bottom: 1rem;
-        font-weight: 600;
+        text-transform: uppercase;
       }
 
-      .search-filters {
+      .stats-card .number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e6f5c;
+      }
+
+      /* ADD CUSTOMER BUTTON - BIG AND GREEN */
+      .add-button-section {
+        margin-bottom: 2rem;
         display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
+        justify-content: flex-end;
       }
 
-      .search-input {
-        flex: 1;
-        padding: 0.75rem 1rem;
-        border: 2px solid #e2e8f0;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
+      .btn-add-customer {
+        background: #1e6f5c;
+        color: white;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 40px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(30, 111, 92, 0.3);
       }
 
-      .search-input:focus {
-        outline: none;
-        border-color: #4ade80;
-        box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+      .btn-add-customer:hover {
+        background: #0e5948;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(30, 111, 92, 0.4);
       }
 
-      /* Table */
+      .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #eef2f8;
+      }
+
+      .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+
+      .empty-state h3 {
+        font-size: 1.3rem;
+        color: #334155;
+        margin-bottom: 0.5rem;
+      }
+
+      .empty-state p {
+        color: #94a3b8;
+        margin-bottom: 1.5rem;
+      }
+
+      .empty-add-btn {
+        background: #1e6f5c;
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 40px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .empty-add-btn:hover {
+        background: #0e5948;
+      }
+
       .table-container {
         background: white;
-        border-radius: 12px;
+        border-radius: 20px;
         overflow-x: auto;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        margin-bottom: 2rem;
+        border: 1px solid #eef2f8;
       }
 
       .customer-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 800px;
-      }
-
-      .customer-table thead {
-        background: #f8fafc;
-        border-bottom: 2px solid #e2e8f0;
+        min-width: 700px;
       }
 
       .customer-table th {
-        padding: 1rem;
         text-align: left;
+        padding: 1rem 1.2rem;
+        background: #fafcfd;
+        border-bottom: 1px solid #eef2f8;
         font-weight: 600;
-        color: #475569;
-        font-size: 0.85rem;
+        color: #4b5a6e;
+        font-size: 0.8rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
       }
 
       .customer-table td {
-        padding: 1rem;
-        border-bottom: 1px solid #e2e8f0;
-        color: #334155;
-      }
-
-      .customer-table tbody tr:hover {
-        background: #f8fafc;
+        padding: 1rem 1.2rem;
+        border-bottom: 1px solid #f0f3f9;
       }
 
       .customer-name {
         font-weight: 600;
-        color: #1a472a;
+        color: #1f2f3c;
       }
 
-      /* Status Badge */
       .status-badge {
         display: inline-block;
-        padding: 0.25rem 0.75rem;
+        padding: 4px 12px;
         border-radius: 20px;
         font-size: 0.75rem;
         font-weight: 600;
@@ -198,109 +236,37 @@
         color: #991b1b;
       }
 
-      /* Action Buttons */
-      .action-buttons {
+      .action-btns {
         display: flex;
-        gap: 0.5rem;
+        gap: 10px;
       }
 
-      .action-btn {
+      .edit-btn,
+      .delete-btn {
         background: none;
         border: none;
         cursor: pointer;
-        padding: 0.25rem 0.5rem;
+        padding: 4px 8px;
         border-radius: 6px;
-        transition: all 0.2s ease;
-        font-size: 1rem;
+        font-size: 0.9rem;
       }
 
-      .action-btn.edit {
+      .edit-btn {
         color: #3b82f6;
       }
 
-      .action-btn.edit:hover {
+      .edit-btn:hover {
         background: #dbeafe;
       }
 
-      .action-btn.delete {
+      .delete-btn {
         color: #ef4444;
       }
 
-      .action-btn.delete:hover {
+      .delete-btn:hover {
         background: #fee2e2;
       }
 
-      /* Add Customer Button */
-      .add-customer-section {
-        margin-bottom: 2rem;
-        text-align: right;
-      }
-
-      .btn-add {
-        background: #1a472a;
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .btn-add:hover {
-        background: #0d2818;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(26, 71, 42, 0.3);
-      }
-
-      /* Pagination */
-      .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        padding: 1rem 0;
-      }
-
-      .page-btn {
-        padding: 0.5rem 1rem;
-        border: 1px solid #e2e8f0;
-        background: white;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        color: #475569;
-        font-weight: 500;
-      }
-
-      .page-btn:hover:not(:disabled) {
-        background: #4ade80;
-        color: white;
-        border-color: #4ade80;
-      }
-
-      .page-btn.active {
-        background: #1a472a;
-        color: white;
-        border-color: #1a472a;
-      }
-
-      .page-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      .page-dots {
-        padding: 0.5rem;
-        color: #94a3b8;
-      }
-
-      /* Modal */
       .modal {
         display: none;
         position: fixed;
@@ -317,11 +283,9 @@
       .modal-content {
         background: white;
         padding: 2rem;
-        border-radius: 16px;
+        border-radius: 24px;
         width: 90%;
         max-width: 500px;
-        max-height: 90vh;
-        overflow-y: auto;
       }
 
       .modal-header {
@@ -332,15 +296,15 @@
       }
 
       .modal-header h2 {
-        color: #1a472a;
+        color: #1e2f3e;
       }
 
       .close-modal {
         background: none;
         border: none;
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         cursor: pointer;
-        color: #64748b;
+        color: #94a3b8;
       }
 
       .form-group {
@@ -359,14 +323,14 @@
         width: 100%;
         padding: 0.75rem;
         border: 2px solid #e2e8f0;
-        border-radius: 8px;
+        border-radius: 12px;
         font-size: 0.95rem;
       }
 
       .form-group input:focus,
       .form-group select:focus {
         outline: none;
-        border-color: #4ade80;
+        border-color: #1e6f5c;
       }
 
       .modal-buttons {
@@ -379,13 +343,13 @@
         flex: 1;
         padding: 0.75rem;
         border: none;
-        border-radius: 8px;
+        border-radius: 40px;
         cursor: pointer;
         font-weight: 600;
       }
 
-      .btn-submit {
-        background: #1a472a;
+      .btn-save {
+        background: #1e6f5c;
         color: white;
       }
 
@@ -394,124 +358,95 @@
         color: #475569;
       }
 
-      @media (max-width: 768px) {
-        .sidebar {
-          width: 80px;
-        }
-        .sidebar .logo,
-        .sidebar .nav-item span {
-          display: none;
-        }
-        .main-content {
-          margin-left: 80px;
-        }
+      .toast {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: #1e6f5c;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 40px;
+        display: none;
+        z-index: 1100;
       }
     </style>
   </head>
   <body>
-    <div class="ecooma-container">
-      <!-- Sidebar -->
+    <div class="app-container">
       <aside class="sidebar">
-        <div class="logo">Eco<span>oma</span></div>
+        <div class="logo">EXPERT LIFE</div>
         <nav class="nav-menu">
-          <a href="#" class="nav-item">📊 Dashboard</a>
-          <a href="#" class="nav-item active">👥 Customers</a>
-          <a href="#" class="nav-item">📦 Products</a>
-          <a href="#" class="nav-item">🛒 Orders</a>
-          <a href="#" class="nav-item">💰 Invoices</a>
-          <a href="#" class="nav-item">⚙️ Settings</a>
+          <a href="/" class="nav-item">🏠 Home</a>
+          <a href="/dashboard/" class="nav-item">📊 Dashboard</a>
+          <a href="/appointments/" class="nav-item">📅 Appointments</a>
+          <a href="/customers/" class="nav-item active">👥 Customers</a>
+          <a href="/invoices/" class="nav-item">📄 Invoices</a>
+          <a href="/notifications/" class="nav-item">🔔 Notifications</a>
+          <a href="/settings/" class="nav-item">⚙️ Settings</a>
         </nav>
       </aside>
 
-      <!-- Main Content -->
       <main class="main-content">
         <div class="page-header">
           <h1>Customers</h1>
+          <p>View and manage your business customer list.</p>
         </div>
 
-        <!-- Search Section -->
-        <div class="search-section">
-          <div class="search-title">🔍 Search Customers</div>
-          <div class="search-filters">
-            <input
-              type="text"
-              id="searchInput"
-              class="search-input"
-              placeholder="Name, Email, Phone, or Country..."
-            />
-          </div>
+        <div class="stats-card">
+          <div class="label">Total Customers</div>
+          <div class="number" id="totalCount">0</div>
         </div>
 
-        <!-- Add Customer Button -->
-        <div class="add-customer-section">
-          <button class="btn-add" onclick="openModal()">➕ Add Customer</button>
+        <!-- ✅ ADD CUSTOMER BUTTON - RIGHT HERE ✅ -->
+        <div class="add-button-section">
+          <button class="btn-add-customer" id="addCustomerBtn">
+            ➕ Add Customer
+          </button>
         </div>
 
-        <!-- Customers Table -->
-        <div class="table-container">
-          <table class="customer-table" id="customerTable">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Country</th>
-                <th>Spent</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="customerTableBody">
-              <!-- Data will be populated by JavaScript -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Pagination -->
-        <div class="pagination" id="pagination">
-          <!-- Pagination will be populated by JavaScript -->
-        </div>
+        <div id="customersList"></div>
       </main>
     </div>
 
-    <!-- Add/Edit Customer Modal -->
+    <!-- Modal -->
     <div id="customerModal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2 id="modalTitle">Add Customer</h2>
-          <button class="close-modal" onclick="closeModal()">&times;</button>
+          <h2 id="modalTitle">Add New Customer</h2>
+          <button class="close-modal" id="closeModalBtn">&times;</button>
         </div>
         <form id="customerForm">
           <div class="form-group">
-            <label>Name</label>
-            <input type="text" id="customerName" required />
+            <label>Full Name *</label>
+            <input type="text" id="custName" required />
           </div>
           <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="customerEmail" required />
+            <label>Email *</label>
+            <input type="email" id="custEmail" required />
           </div>
           <div class="form-group">
-            <label>Phone</label>
-            <input type="text" id="customerPhone" required />
+            <label>Phone *</label>
+            <input type="text" id="custPhone" required />
           </div>
           <div class="form-group">
             <label>Country</label>
-            <input type="text" id="customerCountry" required />
+            <input type="text" id="custCountry" />
           </div>
           <div class="form-group">
-            <label>Spent ($)</label>
-            <input type="number" id="customerSpent" required />
+            <label>Total Spent ($)</label>
+            <input type="number" id="custSpent" value="0" step="0.01" />
           </div>
           <div class="form-group">
             <label>Status</label>
-            <select id="customerStatus">
+            <select id="custStatus">
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
             </select>
           </div>
+          <input type="hidden" id="editId" value="" />
           <div class="modal-buttons">
-            <button type="submit" class="btn-submit">Save</button>
-            <button type="button" class="btn-cancel" onclick="closeModal()">
+            <button type="submit" class="btn-save">Save Customer</button>
+            <button type="button" class="btn-cancel" id="cancelBtn">
               Cancel
             </button>
           </div>
@@ -519,195 +454,212 @@
       </div>
     </div>
 
-  
-      let currentPage = 1;
-      const rowsPerPage = 5;
-      let currentEditId = null;
-      let currentSearch = "";
+    <div id="toast" class="toast"></div>
 
-      // Render Table
-      function renderTable() {
-        let filteredCustomers = customers.filter(
-          (customer) =>
-            customer.name.toLowerCase().includes(currentSearch.toLowerCase()) ||
-            customer.email
-              .toLowerCase()
-              .includes(currentSearch.toLowerCase()) ||
-            customer.phone
-              .toLowerCase()
-              .includes(currentSearch.toLowerCase()) ||
-            customer.country
-              .toLowerCase()
-              .includes(currentSearch.toLowerCase()),
-        );
+    <script>
+      let customers = [];
+      let editMode = false;
+      let editId = null;
 
-        const startIndex = (currentPage - 1) * rowsPerPage;
-        const endIndex = startIndex + rowsPerPage;
-        const paginatedCustomers = filteredCustomers.slice(
-          startIndex,
-          endIndex,
-        );
-
-        const tbody = document.getElementById("customerTableBody");
-        tbody.innerHTML = "";
-
-        paginatedCustomers.forEach((customer) => {
-          const row = tbody.insertRow();
-          row.innerHTML = `
-                    <td class="customer-name">${customer.name}</td>
-                    <td>${customer.email}</td>
-                    <td>${customer.phone}</td>
-                    <td>${customer.country}</td>
-                    <td>$${customer.spent.toLocaleString()}</td>
-                    <td><span class="status-badge status-${customer.status.toLowerCase()}">${customer.status}</span></td>
-                    <td class="action-buttons">
-                        <button class="action-btn edit" onclick="editCustomer(${customer.id})">✏️</button>
-                        <button class="action-btn delete" onclick="deleteCustomer(${customer.id})">🗑️</button>
-                    </td>
-                `;
-        });
-
-        renderPagination(filteredCustomers.length);
+      function loadData() {
+        const stored = localStorage.getItem("expert_customers");
+        if (stored) {
+          customers = JSON.parse(stored);
+        } else {
+          customers = [];
+        }
+        renderCustomers();
+        updateTotal();
       }
 
-      // Render Pagination
-      function renderPagination(totalItems) {
-        const totalPages = Math.ceil(totalItems / rowsPerPage);
-        const paginationDiv = document.getElementById("pagination");
-        paginationDiv.innerHTML = "";
+      function saveData() {
+        localStorage.setItem("expert_customers", JSON.stringify(customers));
+        updateTotal();
+      }
 
-        // Prev button
-        const prevBtn = document.createElement("button");
-        prevBtn.textContent = "Prev";
-        prevBtn.className = "page-btn";
-        prevBtn.disabled = currentPage === 1;
-        prevBtn.onclick = () => {
-          if (currentPage > 1) {
-            currentPage--;
-            renderTable();
-          }
-        };
-        paginationDiv.appendChild(prevBtn);
+      function updateTotal() {
+        document.getElementById("totalCount").textContent = customers.length;
+      }
 
-        // Page numbers
-        for (let i = 1; i <= totalPages; i++) {
-          if (
-            i === 1 ||
-            i === totalPages ||
-            (i >= currentPage - 1 && i <= currentPage + 1)
-          ) {
-            const pageBtn = document.createElement("button");
-            pageBtn.textContent = i;
-            pageBtn.className = `page-btn ${currentPage === i ? "active" : ""}`;
-            pageBtn.onclick = () => {
-              currentPage = i;
-              renderTable();
-            };
-            paginationDiv.appendChild(pageBtn);
-          } else if (i === currentPage - 2 || i === currentPage + 2) {
-            const dots = document.createElement("span");
-            dots.textContent = "...";
-            dots.className = "page-dots";
-            paginationDiv.appendChild(dots);
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.textContent = msg;
+        toast.style.display = "block";
+        setTimeout(() => {
+          toast.style.display = "none";
+        }, 2500);
+      }
+
+      function renderCustomers() {
+        const container = document.getElementById("customersList");
+
+        if (customers.length === 0) {
+          container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">👥</div>
+                    <h3>No customers found yet</h3>
+                    <p>Click the <strong>Add Customer</strong> button to get started.</p>
+                    <button class="empty-add-btn" id="emptyAddBtn">➕ Add Customer</button>
+                </div>
+            `;
+          const emptyBtn = document.getElementById("emptyAddBtn");
+          if (emptyBtn) {
+            emptyBtn.addEventListener("click", openAddModal);
           }
+          return;
         }
 
-        // Next button
-        const nextBtn = document.createElement("button");
-        nextBtn.textContent = "Next";
-        nextBtn.className = "page-btn";
-        nextBtn.disabled = currentPage === totalPages;
-        nextBtn.onclick = () => {
-          if (currentPage < totalPages) {
-            currentPage++;
-            renderTable();
-          }
-        };
-        paginationDiv.appendChild(nextBtn);
+        let html = `
+            <div class="table-container">
+                <table class="customer-table">
+                    <thead>
+                        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Country</th><th>Spent</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        customers.forEach((c) => {
+          html += `
+                <tr>
+                    <td class="customer-name">${escapeHtml(c.name)}</td>
+                    <td>${escapeHtml(c.email)}</td>
+                    <td>${escapeHtml(c.phone)}</td>
+                    <td>${escapeHtml(c.country || "—")}</td>
+                    <td>$${(c.spent || 0).toLocaleString()}</td>
+                    <td><span class="status-badge status-${(c.status || "Active").toLowerCase()}">${c.status || "Active"}</span></td>
+                    <td class="action-btns">
+                        <button class="edit-btn" onclick="editCustomerById(${c.id})">✏️ Edit</button>
+                        <button class="delete-btn" onclick="deleteCustomerById(${c.id})">🗑️ Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table></div>`;
+        container.innerHTML = html;
       }
 
-      // Search functionality
-      document.getElementById("searchInput").addEventListener("input", (e) => {
-        currentSearch = e.target.value;
-        currentPage = 1;
-        renderTable();
-      });
+      function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/[&<>]/g, function (m) {
+          if (m === "&") return "&amp;";
+          if (m === "<") return "&lt;";
+          if (m === ">") return "&gt;";
+          return m;
+        });
+      }
 
-      // Add Customer
-      function openModal(editMode = false) {
+      function openAddModal() {
+        editMode = false;
+        editId = null;
+        document.getElementById("modalTitle").textContent = "Add New Customer";
+        document.getElementById("customerForm").reset();
+        document.getElementById("custStatus").value = "Active";
+        document.getElementById("custSpent").value = "0";
+        document.getElementById("editId").value = "";
         document.getElementById("customerModal").style.display = "flex";
+      }
+
+      function editCustomerById(id) {
+        const customer = customers.find((c) => c.id === id);
+        if (!customer) return;
+
+        editMode = true;
+        editId = id;
+        document.getElementById("modalTitle").textContent = "Edit Customer";
+        document.getElementById("custName").value = customer.name;
+        document.getElementById("custEmail").value = customer.email;
+        document.getElementById("custPhone").value = customer.phone;
+        document.getElementById("custCountry").value = customer.country || "";
+        document.getElementById("custSpent").value = customer.spent || 0;
+        document.getElementById("custStatus").value =
+          customer.status || "Active";
+        document.getElementById("editId").value = id;
+        document.getElementById("customerModal").style.display = "flex";
+      }
+
+      function deleteCustomerById(id) {
+        if (confirm("Are you sure you want to delete this customer?")) {
+          customers = customers.filter((c) => c.id !== id);
+          saveData();
+          renderCustomers();
+          showToast("Customer deleted successfully");
+        }
       }
 
       function closeModal() {
         document.getElementById("customerModal").style.display = "none";
-        document.getElementById("customerForm").reset();
-        currentEditId = null;
       }
 
-      function editCustomer(id) {
-        const customer = customers.find((c) => c.id === id);
-        if (customer) {
-          currentEditId = id;
-          document.getElementById("modalTitle").textContent = "Edit Customer";
-          document.getElementById("customerName").value = customer.name;
-          document.getElementById("customerEmail").value = customer.email;
-          document.getElementById("customerPhone").value = customer.phone;
-          document.getElementById("customerCountry").value = customer.country;
-          document.getElementById("customerSpent").value = customer.spent;
-          document.getElementById("customerStatus").value = customer.status;
-          openModal(true);
-        }
-      }
-
-      function deleteCustomer(id) {
-        if (confirm("Are you sure you want to delete this customer?")) {
-          customers = customers.filter((c) => c.id !== id);
-          if (customers.length === 0 && currentPage > 1) {
-            currentPage--;
-          }
-          renderTable();
-        }
-      }
-
-      // Form submission
       document
         .getElementById("customerForm")
-        .addEventListener("submit", (e) => {
+        .addEventListener("submit", function (e) {
           e.preventDefault();
 
-          const customerData = {
-            name: document.getElementById("customerName").value,
-            email: document.getElementById("customerEmail").value,
-            phone: document.getElementById("customerPhone").value,
-            country: document.getElementById("customerCountry").value,
-            spent: parseFloat(document.getElementById("customerSpent").value),
-            status: document.getElementById("customerStatus").value,
-          };
+          const name = document.getElementById("custName").value.trim();
+          const email = document.getElementById("custEmail").value.trim();
+          const phone = document.getElementById("custPhone").value.trim();
+          const country = document.getElementById("custCountry").value.trim();
+          const spent =
+            parseFloat(document.getElementById("custSpent").value) || 0;
+          const status = document.getElementById("custStatus").value;
 
-          if (currentEditId) {
-            // Edit existing customer
-            const index = customers.findIndex((c) => c.id === currentEditId);
-            customers[index] = { ...customerData, id: currentEditId };
+          if (!name || !email || !phone) {
+            alert("Please fill in Name, Email, and Phone");
+            return;
+          }
+
+          if (editMode && editId) {
+            const index = customers.findIndex((c) => c.id === editId);
+            if (index !== -1) {
+              customers[index] = {
+                ...customers[index],
+                name,
+                email,
+                phone,
+                country,
+                spent,
+                status,
+              };
+              saveData();
+              renderCustomers();
+              showToast("Customer updated successfully");
+            }
           } else {
-            // Add new customer
-            const newId = Math.max(...customers.map((c) => c.id), 0) + 1;
-            customers.push({ ...customerData, id: newId });
+            const newId = Date.now();
+            customers.push({
+              id: newId,
+              name,
+              email,
+              phone,
+              country,
+              spent,
+              status,
+            });
+            saveData();
+            renderCustomers();
+            showToast("Customer added successfully");
           }
 
           closeModal();
-          renderTable();
         });
 
-      // Close modal when clicking outside
-      window.onclick = (event) => {
+      document
+        .getElementById("addCustomerBtn")
+        .addEventListener("click", openAddModal);
+      document
+        .getElementById("closeModalBtn")
+        .addEventListener("click", closeModal);
+      document
+        .getElementById("cancelBtn")
+        .addEventListener("click", closeModal);
+
+      window.onclick = function (event) {
         const modal = document.getElementById("customerModal");
-        if (event.target === modal) {
-          closeModal();
-        }
+        if (event.target === modal) closeModal();
       };
 
-      // Initial render
-      renderTable();
+      loadData();
     </script>
   </body>
 </html>

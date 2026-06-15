@@ -117,6 +117,40 @@ def customers(request):
     return render(request, "feature/customers.html", context)
 
 
+@login_required
+def add_customer(request):
+    """Add a new customer"""
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        address = request.POST.get('address')
+        
+        if not name or not email:
+            messages.error(request, 'Name and Email are required fields.')
+            return redirect('feature:customers')
+        
+        # Check if customer with this email already exists for this user
+        if Customer.objects.filter(owner=request.user, email=email).exists():
+            messages.warning(request, f'A customer with email "{email}" already exists.')
+            return redirect('feature:customers')
+        
+        # Create the new customer
+        customer = Customer.objects.create(
+            name=name,
+            email=email,
+            phone=phone,
+            address=address,
+            owner=request.user
+        )
+        
+        messages.success(request, f'Customer "{customer.name}" added successfully!')
+        return redirect('feature:customers')
+    
+    # If not POST, redirect back to customers page
+    return redirect('feature:customers')
+
+
 def invoices(request):
     """Anyone can VIEW invoices list, but to manage need login"""
     if request.user.is_authenticated:
@@ -140,9 +174,6 @@ def invoices(request):
             "login_required": True,
         }
     return render(request, "feature/invoices.html", context)
-
-
-
 
 
 # ========== PROTECTED VIEWS (Require Login for Actions) ==========
@@ -228,6 +259,7 @@ def appointment_create(request):
         "customers": customers,
     })
 
+
 @login_required
 def appointment_edit(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id, customer__owner=request.user)
@@ -286,8 +318,8 @@ def appointment_edit(request, appointment_id):
         "appointment": appointment,
         "customers": customers,
         "selected_customer_id": appointment.customer_id,
-        "date_value": appointment.date.strftime('%Y-%m-%d') if appointment.date else '',  # Fixed
-        "time_value": appointment.date.strftime('%H:%M') if appointment.date else '',     # Fixed
+        "date_value": appointment.date.strftime('%Y-%m-%d') if appointment.date else '',
+        "time_value": appointment.date.strftime('%H:%M') if appointment.date else '',
         "notes": appointment.notes,
     })
 
@@ -328,6 +360,8 @@ def settings(request):
         "user": user,
     }
     return render(request, "feature/settings.html", context)
+
+
 def notification_center(request):
     """Main notification page — visible to anonymous users with a signup prompt."""
     if request.user.is_authenticated:
@@ -343,6 +377,8 @@ def notification_center(request):
         'show_signup_prompt': not request.user.is_authenticated,
     }
     return render(request, "feature/notifications.html", context)
+
+
 @login_required
 def get_notifications_api(request):
     """AJAX endpoint to get notifications"""
@@ -371,6 +407,7 @@ def get_notifications_api(request):
         'total': notifications.count(),
     })
 
+
 @login_required
 @require_POST
 def mark_notification_read(request, notification_id):
@@ -379,12 +416,14 @@ def mark_notification_read(request, notification_id):
     notification.mark_as_read()
     return JsonResponse({'success': True})
 
+
 @login_required
 @require_POST
 def mark_all_read(request):
     """Mark all notifications as read"""
     mark_all_as_read(request.user)
     return JsonResponse({'success': True})
+
 
 @login_required
 @require_POST
