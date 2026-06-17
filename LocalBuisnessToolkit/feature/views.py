@@ -124,7 +124,7 @@ def add_customer(request):
         name = request.POST.get('name')
         email = request.POST.get('email')
         phone = request.POST.get('phone')
-        address = request.POST.get('address')
+        
         
         if not name or not email:
             messages.error(request, 'Name and Email are required fields.')
@@ -139,8 +139,7 @@ def add_customer(request):
         customer = Customer.objects.create(
             name=name,
             email=email,
-            phone=phone,
-            address=address,
+            phone=phone or '',
             owner=request.user
         )
         

@@ -1,665 +1,76 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EXPERT LIFE - Customers</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          "Helvetica Neue", sans-serif;
-        background: #f4f6fb;
-        color: #1a2c3e;
-      }
-
-      .app-container {
-        display: flex;
-        min-height: 100vh;
-      }
-
-      .sidebar {
-        width: 260px;
-        background: white;
-        border-right: 1px solid #e9edf2;
-        padding: 2rem 1.5rem;
-        position: sticky;
-        top: 0;
-        height: 100vh;
-      }
-
-      .logo {
-        font-size: 1.6rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #1e6f5c, #2c8b76);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        margin-bottom: 2rem;
-      }
-
-      .nav-menu {
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-      }
-
-      .nav-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 0.7rem 1rem;
-        border-radius: 12px;
-        color: #4a5b6e;
-        font-weight: 500;
-        cursor: pointer;
-        text-decoration: none;
-      }
-
-      .nav-item.active {
-        background: #eef2fa;
-        color: #1e6f5c;
-        font-weight: 600;
-      }
-
-      .nav-item:hover:not(.active) {
-        background: #f8fafd;
-      }
-
-      .main-content {
-        flex: 1;
-        padding: 2rem 2.5rem;
-      }
-
-      .page-header {
-        margin-bottom: 1.5rem;
-      }
-
-      .page-header h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #1e2f3e;
-      }
-
-      .page-header p {
-        color: #5e6f8d;
-        margin-top: 0.25rem;
-      }
-
-      .stats-card {
-        background: white;
-        padding: 1rem 1.5rem;
-        border-radius: 16px;
-        margin-bottom: 2rem;
-        display: inline-block;
-        border: 1px solid #eef2f8;
-      }
-
-      .stats-card .label {
-        font-size: 0.8rem;
-        color: #64748b;
-        text-transform: uppercase;
-      }
-
-      .stats-card .number {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #1e6f5c;
-      }
-
-      /* ADD CUSTOMER BUTTON - BIG AND GREEN */
-      .add-button-section {
-        margin-bottom: 2rem;
-        display: flex;
-        justify-content: flex-end;
-      }
-
-      .btn-add-customer {
-        background: #1e6f5c;
-        color: white;
-        border: none;
-        padding: 14px 32px;
-        border-radius: 40px;
-        font-size: 1rem;
-        font-weight: 700;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 8px rgba(30, 111, 92, 0.3);
-      }
-
-      .btn-add-customer:hover {
-        background: #0e5948;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 14px rgba(30, 111, 92, 0.4);
-      }
-
-      .empty-state {
-        text-align: center;
-        padding: 3rem;
-        background: white;
-        border-radius: 20px;
-        border: 1px solid #eef2f8;
-      }
-
-      .empty-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-      }
-
-      .empty-state h3 {
-        font-size: 1.3rem;
-        color: #334155;
-        margin-bottom: 0.5rem;
-      }
-
-      .empty-state p {
-        color: #94a3b8;
-        margin-bottom: 1.5rem;
-      }
-
-      .empty-add-btn {
-        background: #1e6f5c;
-        color: white;
-        border: none;
-        padding: 12px 28px;
-        border-radius: 40px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .empty-add-btn:hover {
-        background: #0e5948;
-      }
-
-      .table-container {
-        background: white;
-        border-radius: 20px;
-        overflow-x: auto;
-        border: 1px solid #eef2f8;
-      }
-
-      .customer-table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 700px;
-      }
-
-      .customer-table th {
-        text-align: left;
-        padding: 1rem 1.2rem;
-        background: #fafcfd;
-        border-bottom: 1px solid #eef2f8;
-        font-weight: 600;
-        color: #4b5a6e;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-      }
-
-      .customer-table td {
-        padding: 1rem 1.2rem;
-        border-bottom: 1px solid #f0f3f9;
-      }
-
-      .customer-name {
-        font-weight: 600;
-        color: #1f2f3c;
-      }
-
-      .status-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-      }
-
-      .status-active {
-        background: #dcfce7;
-        color: #166534;
-      }
-
-      .status-inactive {
-        background: #fee2e2;
-        color: #991b1b;
-      }
-
-      .action-btns {
-        display: flex;
-        gap: 10px;
-      }
-
-      .edit-btn,
-      .delete-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 4px 8px;
-        border-radius: 6px;
-        font-size: 0.9rem;
-      }
-
-      .edit-btn {
-        color: #3b82f6;
-      }
-
-      .edit-btn:hover {
-        background: #dbeafe;
-      }
-
-      .delete-btn {
-        color: #ef4444;
-      }
-
-      .delete-btn:hover {
-        background: #fee2e2;
-      }
-
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-      }
-
-      .modal-content {
-        background: white;
-        padding: 2rem;
-        border-radius: 24px;
-        width: 90%;
-        max-width: 500px;
-      }
-
-      .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-      }
-
-      .modal-header h2 {
-        color: #1e2f3e;
-      }
-
-      .close-modal {
-        background: none;
-        border: none;
-        font-size: 1.8rem;
-        cursor: pointer;
-        color: #94a3b8;
-      }
-
-      .form-group {
-        margin-bottom: 1rem;
-      }
-
-      .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: #334155;
-      }
-
-      .form-group input,
-      .form-group select {
-        width: 100%;
-        padding: 0.75rem;
-        border: 2px solid #e2e8f0;
-        border-radius: 12px;
-        font-size: 0.95rem;
-      }
-
-      .form-group input:focus,
-      .form-group select:focus {
-        outline: none;
-        border-color: #1e6f5c;
-      }
-
-      .modal-buttons {
-        display: flex;
-        gap: 1rem;
-        margin-top: 1.5rem;
-      }
-
-      .modal-buttons button {
-        flex: 1;
-        padding: 0.75rem;
-        border: none;
-        border-radius: 40px;
-        cursor: pointer;
-        font-weight: 600;
-      }
-
-      .btn-save {
-        background: #1e6f5c;
-        color: white;
-      }
-
-      .btn-cancel {
-        background: #e2e8f0;
-        color: #475569;
-      }
-
-      .toast {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background: #1e6f5c;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 40px;
-        display: none;
-        z-index: 1100;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="app-container">
-      <aside class="sidebar">
-        <div class="logo">EXPERT LIFE</div>
-        <nav class="nav-menu">
-          <a href="/" class="nav-item">🏠 Home</a>
-          <a href="/dashboard/" class="nav-item">📊 Dashboard</a>
-          <a href="/appointments/" class="nav-item">📅 Appointments</a>
-          <a href="/customers/" class="nav-item active">👥 Customers</a>
-          <a href="/invoices/" class="nav-item">📄 Invoices</a>
-          <a href="/notifications/" class="nav-item">🔔 Notifications</a>
-          <a href="/settings/" class="nav-item">⚙️ Settings</a>
-        </nav>
-      </aside>
-
-      <main class="main-content">
-        <div class="page-header">
-          <h1>Customers</h1>
-          <p>View and manage your business customer list.</p>
+<!-- ✅ ADD CUSTOMER MODAL ✅ -->
+<div class="modal fade" id="addCustomerModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-user-plus me-2"></i>Add New Customer
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <form method="POST" action="{% url 'feature:add_customer' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="customerName" class="form-label fw-bold"
+              >Full Name *</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="customerName"
+              name="name"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="customerEmail" class="form-label fw-bold"
+              >Email Address *</label
+            >
+            <input
+              type="email"
+              class="form-control"
+              id="customerEmail"
+              name="email"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="customerPhone" class="form-label fw-bold"
+              >Phone Number</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="customerPhone"
+              name="phone"
+            />
+          </div>
+          <!-- REMOVE THIS ENTIRE ADDRESS SECTION -->
+          <!--
+          <div class="mb-3">
+            <label for="customerAddress" class="form-label fw-bold">Address</label>
+            <textarea class="form-control" id="customerAddress" name="address" rows="2"></textarea>
+          </div>
+          -->
         </div>
-
-        <div class="stats-card">
-          <div class="label">Total Customers</div>
-          <div class="number" id="totalCount">0</div>
-        </div>
-
-        <!-- ✅ ADD CUSTOMER BUTTON - RIGHT HERE ✅ -->
-        <div class="add-button-section">
-          <button class="btn-add-customer" id="addCustomerBtn">
-            ➕ Add Customer
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-save me-1"></i>Save Customer
           </button>
         </div>
-
-        <div id="customersList"></div>
-      </main>
+      </form>
     </div>
-
-    <!-- Modal -->
-    <div id="customerModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 id="modalTitle">Add New Customer</h2>
-          <button class="close-modal" id="closeModalBtn">&times;</button>
-        </div>
-        <form id="customerForm">
-          <div class="form-group">
-            <label>Full Name *</label>
-            <input type="text" id="custName" required />
-          </div>
-          <div class="form-group">
-            <label>Email *</label>
-            <input type="email" id="custEmail" required />
-          </div>
-          <div class="form-group">
-            <label>Phone *</label>
-            <input type="text" id="custPhone" required />
-          </div>
-          <div class="form-group">
-            <label>Country</label>
-            <input type="text" id="custCountry" />
-          </div>
-          <div class="form-group">
-            <label>Total Spent ($)</label>
-            <input type="number" id="custSpent" value="0" step="0.01" />
-          </div>
-          <div class="form-group">
-            <label>Status</label>
-            <select id="custStatus">
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
-          <input type="hidden" id="editId" value="" />
-          <div class="modal-buttons">
-            <button type="submit" class="btn-save">Save Customer</button>
-            <button type="button" class="btn-cancel" id="cancelBtn">
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <div id="toast" class="toast"></div>
-
-    <script>
-      let customers = [];
-      let editMode = false;
-      let editId = null;
-
-      function loadData() {
-        const stored = localStorage.getItem("expert_customers");
-        if (stored) {
-          customers = JSON.parse(stored);
-        } else {
-          customers = [];
-        }
-        renderCustomers();
-        updateTotal();
-      }
-
-      function saveData() {
-        localStorage.setItem("expert_customers", JSON.stringify(customers));
-        updateTotal();
-      }
-
-      function updateTotal() {
-        document.getElementById("totalCount").textContent = customers.length;
-      }
-
-      function showToast(msg) {
-        const toast = document.getElementById("toast");
-        toast.textContent = msg;
-        toast.style.display = "block";
-        setTimeout(() => {
-          toast.style.display = "none";
-        }, 2500);
-      }
-
-      function renderCustomers() {
-        const container = document.getElementById("customersList");
-
-        if (customers.length === 0) {
-          container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">👥</div>
-                    <h3>No customers found yet</h3>
-                    <p>Click the <strong>Add Customer</strong> button to get started.</p>
-                    <button class="empty-add-btn" id="emptyAddBtn">➕ Add Customer</button>
-                </div>
-            `;
-          const emptyBtn = document.getElementById("emptyAddBtn");
-          if (emptyBtn) {
-            emptyBtn.addEventListener("click", openAddModal);
-          }
-          return;
-        }
-
-        let html = `
-            <div class="table-container">
-                <table class="customer-table">
-                    <thead>
-                        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Country</th><th>Spent</th><th>Status</th><th>Actions</th></tr>
-                    </thead>
-                    <tbody>
-        `;
-
-        customers.forEach((c) => {
-          html += `
-                <tr>
-                    <td class="customer-name">${escapeHtml(c.name)}</td>
-                    <td>${escapeHtml(c.email)}</td>
-                    <td>${escapeHtml(c.phone)}</td>
-                    <td>${escapeHtml(c.country || "—")}</td>
-                    <td>$${(c.spent || 0).toLocaleString()}</td>
-                    <td><span class="status-badge status-${(c.status || "Active").toLowerCase()}">${c.status || "Active"}</span></td>
-                    <td class="action-btns">
-                        <button class="edit-btn" onclick="editCustomerById(${c.id})">✏️ Edit</button>
-                        <button class="delete-btn" onclick="deleteCustomerById(${c.id})">🗑️ Delete</button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        html += `</tbody></table></div>`;
-        container.innerHTML = html;
-      }
-
-      function escapeHtml(str) {
-        if (!str) return "";
-        return str.replace(/[&<>]/g, function (m) {
-          if (m === "&") return "&amp;";
-          if (m === "<") return "&lt;";
-          if (m === ">") return "&gt;";
-          return m;
-        });
-      }
-
-      function openAddModal() {
-        editMode = false;
-        editId = null;
-        document.getElementById("modalTitle").textContent = "Add New Customer";
-        document.getElementById("customerForm").reset();
-        document.getElementById("custStatus").value = "Active";
-        document.getElementById("custSpent").value = "0";
-        document.getElementById("editId").value = "";
-        document.getElementById("customerModal").style.display = "flex";
-      }
-
-      function editCustomerById(id) {
-        const customer = customers.find((c) => c.id === id);
-        if (!customer) return;
-
-        editMode = true;
-        editId = id;
-        document.getElementById("modalTitle").textContent = "Edit Customer";
-        document.getElementById("custName").value = customer.name;
-        document.getElementById("custEmail").value = customer.email;
-        document.getElementById("custPhone").value = customer.phone;
-        document.getElementById("custCountry").value = customer.country || "";
-        document.getElementById("custSpent").value = customer.spent || 0;
-        document.getElementById("custStatus").value =
-          customer.status || "Active";
-        document.getElementById("editId").value = id;
-        document.getElementById("customerModal").style.display = "flex";
-      }
-
-      function deleteCustomerById(id) {
-        if (confirm("Are you sure you want to delete this customer?")) {
-          customers = customers.filter((c) => c.id !== id);
-          saveData();
-          renderCustomers();
-          showToast("Customer deleted successfully");
-        }
-      }
-
-      function closeModal() {
-        document.getElementById("customerModal").style.display = "none";
-      }
-
-      document
-        .getElementById("customerForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
-
-          const name = document.getElementById("custName").value.trim();
-          const email = document.getElementById("custEmail").value.trim();
-          const phone = document.getElementById("custPhone").value.trim();
-          const country = document.getElementById("custCountry").value.trim();
-          const spent =
-            parseFloat(document.getElementById("custSpent").value) || 0;
-          const status = document.getElementById("custStatus").value;
-
-          if (!name || !email || !phone) {
-            alert("Please fill in Name, Email, and Phone");
-            return;
-          }
-
-          if (editMode && editId) {
-            const index = customers.findIndex((c) => c.id === editId);
-            if (index !== -1) {
-              customers[index] = {
-                ...customers[index],
-                name,
-                email,
-                phone,
-                country,
-                spent,
-                status,
-              };
-              saveData();
-              renderCustomers();
-              showToast("Customer updated successfully");
-            }
-          } else {
-            const newId = Date.now();
-            customers.push({
-              id: newId,
-              name,
-              email,
-              phone,
-              country,
-              spent,
-              status,
-            });
-            saveData();
-            renderCustomers();
-            showToast("Customer added successfully");
-          }
-
-          closeModal();
-        });
-
-      document
-        .getElementById("addCustomerBtn")
-        .addEventListener("click", openAddModal);
-      document
-        .getElementById("closeModalBtn")
-        .addEventListener("click", closeModal);
-      document
-        .getElementById("cancelBtn")
-        .addEventListener("click", closeModal);
-
-      window.onclick = function (event) {
-        const modal = document.getElementById("customerModal");
-        if (event.target === modal) closeModal();
-      };
-
-      loadData();
-    </script>
-  </body>
-</html>
+  </div>
+</div>
