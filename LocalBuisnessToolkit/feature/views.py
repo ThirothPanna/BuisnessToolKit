@@ -51,6 +51,9 @@ def dashboard(request):
             "notifications_count": notifications.count(),
             "recent_appointments": appointments.order_by("-date")[:5],
             "recent_invoices": invoices.order_by("-created_at")[:5],
+            # Ensure template doesn't crash even if older DB rows have missing columns after schema changes
+            # (e.g., migrations not applied). We defensively access only fields that are guaranteed to exist.
+
             "user_logged_in": True,
         }
     else:
@@ -117,61 +120,116 @@ def customers(request):
 
 
 @login_required
-def add_customer(request):
-    """Add a new customer"""
+def customer_detail(request, customer_id):
+    """View a single customer (detail page with actions)."""
+    if not request.user.is_authenticated:
+        return redirect('account_login')
+
+    customer = get_object_or_404(Customer, id=customer_id, owner=request.user)
+    return render(request, "feature/customer_detail.html", {"customer": customer})
+
+
+@login_required
+def customer_edit(request, customer_id):
+    """Edit a customer."""
+    customer = get_object_or_404(Customer, id=customer_id, owner=request.user)
+
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
         phone = request.POST.get('phone')
-        
+
         if not name or not email:
             messages.error(request, 'Name and Email are required fields.')
-            return redirect('feature:customers')
-        
-        # Check if customer with this email already exists for this user
+            return render(request, "feature/customer_form.html", {"customer": customer})
+
+        # unique per owner/email
+        if Customer.objects.filter(owner=request.user, email=email).exclude(id=customer.id).exists():
+            messages.warning(request, f'A customer with email "{email}" already exists.')
+            return render(request, "feature/customer_form.html", {"customer": customer})
+
+        customer.name = name
+        customer.email = email
+        customer.phone = phone or ''
+        customer.save()
+
+        messages.success(request, 'Customer updated successfully!')
+        return redirect('feature:customer_detail', customer_id=customer.id)
+
+    return render(request, "feature/customer_form.html", {"customer": customer})
+
+
+@login_required
+def customer_delete(request, customer_id):
+    """Delete a customer (confirmation page + POST deletion)."""
+    customer = get_object_or_404(Customer, id=customer_id, owner=request.user)
+
+    if request.method == 'POST':
+        customer.delete()
+        messages.success(request, 'Customer deleted successfully!')
+        return redirect('feature:customers')
+
+    return render(request, "feature/customer_confirm_delete.html", {"customer": customer})
+
+
+@login_required
+def customer_create(request):
+    """Create a new customer (appointment-like feature parity)."""
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+
+        if not name or not email:
+            messages.error(request, 'Name and Email are required fields.')
+            return redirect('feature:customer_create')
+
         if Customer.objects.filter(owner=request.user, email=email).exists():
             messages.warning(request, f'A customer with email "{email}" already exists.')
-            return redirect('feature:customers')
-        
-        # Create the new customer
+            return redirect('feature:customer_create')
+
         customer = Customer.objects.create(
             name=name,
             email=email,
             phone=phone or '',
-            owner=request.user
+            owner=request.user,
         )
-        
+
         messages.success(request, f'Customer "{customer.name}" added successfully!')
-        return redirect('feature:customers')
-    
-    # If not POST, redirect back to customers page
-    return redirect('feature:customers')
+        return redirect('feature:customer_detail', customer_id=customer.id)
+
+    # GET: show empty create form
+    return render(request, "feature/customer_form.html", {"customer": None})
+
+
+@login_required
+def add_customer(request):
+    """Backward-compatible alias for the modal/form action."""
+    return customer_create(request)
+
 
 
 def invoices(request):
     """Anyone can VIEW invoices list, but to manage need login"""
     if request.user.is_authenticated:
         try:
-            # Get invoices
             invoices = Invoice.objects.filter(
                 Q(customer__owner=request.user) | Q(user=request.user)
             ).distinct()
-            
+
             # Check for and remove problematic invoices
             for invoice in list(invoices):
                 try:
-                    # Test if we can access the amount
                     float(invoice.amount)
                 except (ValueError, TypeError, InvalidOperation):
-                    # Delete problematic invoice
                     invoice.delete()
                     messages.warning(request, f'Removed invalid invoice #{invoice.id}')
-            
-            # Get fresh queryset after cleanup
+
+            # Refresh queryset after cleanup
             invoices = Invoice.objects.filter(
                 Q(customer__owner=request.user) | Q(user=request.user)
             ).distinct()
-            
+
             customers = Customer.objects.filter(owner=request.user)
             context = {
                 "invoices": invoices,
@@ -181,8 +239,7 @@ def invoices(request):
                 "customers": customers,
                 "user_logged_in": True,
             }
-        except Exception as e:
-            # If something goes wrong, show empty state
+        except Exception:
             messages.error(request, 'Error loading invoices. Please try again.')
             context = {
                 "invoices": [],
@@ -202,32 +259,10 @@ def invoices(request):
             "user_logged_in": False,
             "login_required": True,
         }
+
     return render(request, "feature/invoices.html", context)
-    """Anyone can VIEW invoices list, but to manage need login"""
-    if request.user.is_authenticated:
-        invoices = Invoice.objects.filter(
-            Q(customer__owner=request.user) | Q(user=request.user)
-        ).distinct()
-        customers = Customer.objects.filter(owner=request.user)
-        context = {
-            "invoices": invoices,
-            "invoices_count": invoices.count(),
-            "invoices_unpaid": invoices.filter(status="unpaid").count(),
-            "invoices_paid": invoices.filter(status="paid").count(),
-            "customers": customers,
-            "user_logged_in": True,
-        }
-    else:
-        context = {
-            "invoices": [],
-            "invoices_count": 0,
-            "invoices_unpaid": 0,
-            "invoices_paid": 0,
-            "customers": [],
-            "user_logged_in": False,
-            "login_required": True,
-        }
-    return render(request, "feature/invoices.html", context)
+
+
 @login_required
 def invoice_detail(request, invoice_id):
     """View invoice details"""
@@ -240,6 +275,49 @@ def invoice_detail(request, invoice_id):
 
 
 @login_required
+def invoice_delete(request, invoice_id):
+    """Delete an invoice (POST only) and notify both staff + customer owner."""
+    invoice = get_object_or_404(
+        Invoice,
+        Q(customer__owner=request.user) | Q(user=request.user),
+        id=invoice_id,
+    )
+
+    if request.method == 'POST':
+        customer_owner = getattr(invoice.customer, 'owner', None)
+
+        # delete notification: notify staff user (invoice.user if present, else request.user) and customer owner
+        notify_users = set()
+        if invoice.user_id:
+            notify_users.add(invoice.user_id)
+        notify_users.add(request.user.id)
+        if customer_owner and customer_owner.id:
+            notify_users.add(customer_owner.id)
+
+        from django.contrib.auth import get_user_model
+        from .notification_utils import create_notification
+
+        UserModel = get_user_model()
+        for uid in notify_users:
+            u = UserModel.objects.get(id=uid)
+            create_notification(
+                user=u,
+                notification_type='invoice',
+                title='Invoice Deleted',
+                message=f"Invoice #{invoice.id} for {invoice.customer.name} was deleted.",
+                obj=None,
+                priority='high',
+            )
+
+
+        invoice.delete()
+        messages.success(request, f'Invoice #{invoice_id} deleted successfully!')
+        return redirect('feature:invoices')
+
+    return render(request, "feature/invoice_confirm_delete.html", {"invoice": invoice})
+
+
+@login_required
 def invoice_edit(request, invoice_id):
     """Edit an invoice"""
     invoice = get_object_or_404(
@@ -248,6 +326,7 @@ def invoice_edit(request, invoice_id):
         id=invoice_id,
     )
     customers = Customer.objects.filter(owner=request.user)
+
 
     if request.method == 'POST':
         customer_id = request.POST.get('customer')

@@ -202,9 +202,16 @@
                     </a>
                     <a
                       href="{% url 'feature:invoice_edit' invoice.id %}"
-                      class="btn btn-secondary btn-sm text-white"
+                      class="btn btn-secondary btn-sm text-white me-2"
                     >
                       <i class="fas fa-edit"></i> Edit
+                    </a>
+
+                    <a
+                      href="{% url 'feature:invoice_delete' invoice_id=invoice.id %}"
+                      class="btn btn-outline-danger btn-sm"
+                    >
+                      <i class="fas fa-trash"></i> Delete
                     </a>
                   </td>
                 </tr>

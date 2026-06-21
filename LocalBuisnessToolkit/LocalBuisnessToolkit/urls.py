@@ -20,5 +20,6 @@ from django.urls import include, path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-    path('', include('feature.urls')),
+    # Namespace the feature app so templates can resolve URLs like {% url 'feature:invoice_delete' ... %}
+    path('', include(('feature.urls', 'feature'), namespace='feature')),
 ]

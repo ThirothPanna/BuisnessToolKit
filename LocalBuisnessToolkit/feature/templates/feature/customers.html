@@ -164,15 +164,14 @@
               <span class="badge bg-secondary text-dark fs-6"
                 >{{ customers_count }} total</span
               >
-              <!-- ✅ ADD CUSTOMER BUTTON - NOW VISIBLE ✅ -->
+
               {% if user.is_authenticated %}
-              <button
+              <a
+                href="{% url 'feature:customer_create' %}"
                 class="btn btn-add-customer text-white fw-bold"
-                data-bs-toggle="modal"
-                data-bs-target="#addCustomerModal"
               >
-                <i class="fas fa-plus-circle me-2"></i>Add Customer
-              </button>
+                <i class="fas fa-plus-circle me-2"></i>New Customer
+              </a>
               {% endif %}
             </div>
           </div>
@@ -186,6 +185,7 @@
                   <th>Email</th>
                   <th>Phone</th>
                   <th>Created</th>
+                  <th><i class="fas fa-tools"></i> Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -195,6 +195,28 @@
                   <td>{{ customer.email }}</td>
                   <td>{{ customer.phone|default:'—' }}</td>
                   <td>{{ customer.created_at|date:'M d, Y' }}</td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <a
+                        href="{% url 'feature:customer_detail' customer.id %}"
+                        class="btn btn-outline-secondary btn-sm"
+                      >
+                        <i class="fas fa-eye"></i> View
+                      </a>
+                      <a
+                        href="{% url 'feature:customer_edit' customer.id %}"
+                        class="btn btn-secondary btn-sm text-white"
+                      >
+                        <i class="fas fa-edit"></i> Edit
+                      </a>
+                      <a
+                        href="{% url 'feature:customer_delete' customer.id %}"
+                        class="btn btn-danger btn-sm"
+                      >
+                        <i class="fas fa-trash"></i> Delete
+                      </a>
+                    </div>
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -204,7 +226,7 @@
           <div class="alert alert-info mb-0">
             <i class="fas fa-info-circle me-2"></i>
             No customers found yet. Click the
-            <strong>"Add Customer"</strong> button above to add your first
+            <strong>"New Customer"</strong> button above to add your first
             customer.
           </div>
           {% endif %} {% else %}
