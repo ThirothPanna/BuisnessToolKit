@@ -20,7 +20,7 @@ def appointment_notification(sender, instance, created, **kwargs):
             obj=instance,
             priority='medium'
         )
-        print(f"✅ Notification created for new appointment: {instance.customer.name}")  # Debug
+        print(f"[OK] Notification created for new appointment: {instance.customer.name}")  # Debug
     else:
         # Appointment updated
         create_notification(
@@ -31,7 +31,7 @@ def appointment_notification(sender, instance, created, **kwargs):
             obj=instance,
             priority='low'
         )
-        print(f"✅ Notification created for updated appointment: {instance.customer.name}")  # Debug
+        print(f"[OK] Notification created for updated appointment: {instance.customer.name}")  # Debug
 
 @receiver(post_delete, sender=Appointment)
 def appointment_deleted_notification(sender, instance, **kwargs):
@@ -46,7 +46,7 @@ def appointment_deleted_notification(sender, instance, **kwargs):
         obj=None,
         priority='high'
     )
-    print(f"✅ Notification created for cancelled appointment: {instance.customer.name}")  # Debug
+    print(f"[OK] Notification created for cancelled appointment: {instance.customer.name}")  # Debug
 
 @receiver(post_save, sender=Invoice)
 def invoice_notification(sender, instance, created, **kwargs):
@@ -64,7 +64,7 @@ def invoice_notification(sender, instance, created, **kwargs):
             obj=instance,
             priority='medium'
         )
-        print(f"✅ Notification created for new invoice: #{instance.id}")  # Debug
+        print(f"[OK] Notification created for new invoice: #{instance.id}")  # Debug
     elif instance.status == 'paid':
         # Invoice marked as paid
         create_notification(
@@ -75,4 +75,4 @@ def invoice_notification(sender, instance, created, **kwargs):
             obj=instance,
             priority='high'
         )
-        print(f"✅ Notification created for paid invoice: #{instance.id}")  # Debug
+        print(f"[OK] Notification created for paid invoice: #{instance.id}")  # Debug

@@ -1,0 +1,10 @@
+components:
+  button:
+    template: slippers/button.html
+    props:
+      type:
+        default: submit
+      class:
+        default: ''
+      text:
+        default: Button

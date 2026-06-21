@@ -151,6 +151,60 @@ def add_customer(request):
 def invoices(request):
     """Anyone can VIEW invoices list, but to manage need login"""
     if request.user.is_authenticated:
+        try:
+            # Get invoices
+            invoices = Invoice.objects.filter(
+                Q(customer__owner=request.user) | Q(user=request.user)
+            ).distinct()
+            
+            # Check for and remove problematic invoices
+            for invoice in list(invoices):
+                try:
+                    # Test if we can access the amount
+                    float(invoice.amount)
+                except (ValueError, TypeError, InvalidOperation):
+                    # Delete problematic invoice
+                    invoice.delete()
+                    messages.warning(request, f'Removed invalid invoice #{invoice.id}')
+            
+            # Get fresh queryset after cleanup
+            invoices = Invoice.objects.filter(
+                Q(customer__owner=request.user) | Q(user=request.user)
+            ).distinct()
+            
+            customers = Customer.objects.filter(owner=request.user)
+            context = {
+                "invoices": invoices,
+                "invoices_count": invoices.count(),
+                "invoices_unpaid": invoices.filter(status="unpaid").count(),
+                "invoices_paid": invoices.filter(status="paid").count(),
+                "customers": customers,
+                "user_logged_in": True,
+            }
+        except Exception as e:
+            # If something goes wrong, show empty state
+            messages.error(request, 'Error loading invoices. Please try again.')
+            context = {
+                "invoices": [],
+                "invoices_count": 0,
+                "invoices_unpaid": 0,
+                "invoices_paid": 0,
+                "customers": [],
+                "user_logged_in": True,
+            }
+    else:
+        context = {
+            "invoices": [],
+            "invoices_count": 0,
+            "invoices_unpaid": 0,
+            "invoices_paid": 0,
+            "customers": [],
+            "user_logged_in": False,
+            "login_required": True,
+        }
+    return render(request, "feature/invoices.html", context)
+    """Anyone can VIEW invoices list, but to manage need login"""
+    if request.user.is_authenticated:
         invoices = Invoice.objects.filter(
             Q(customer__owner=request.user) | Q(user=request.user)
         ).distinct()
@@ -174,6 +228,98 @@ def invoices(request):
             "login_required": True,
         }
     return render(request, "feature/invoices.html", context)
+@login_required
+def invoice_detail(request, invoice_id):
+    """View invoice details"""
+    invoice = get_object_or_404(
+        Invoice,
+        Q(customer__owner=request.user) | Q(user=request.user),
+        id=invoice_id,
+    )
+    return render(request, "feature/invoice_detail.html", {"invoice": invoice})
+
+
+@login_required
+def invoice_edit(request, invoice_id):
+    """Edit an invoice"""
+    invoice = get_object_or_404(
+        Invoice,
+        Q(customer__owner=request.user) | Q(user=request.user),
+        id=invoice_id,
+    )
+    customers = Customer.objects.filter(owner=request.user)
+
+    if request.method == 'POST':
+        customer_id = request.POST.get('customer')
+        amount = request.POST.get('amount')
+        status = request.POST.get('status')
+        description = request.POST.get('description', '')
+        due_date = request.POST.get('due_date')
+
+        if not customer_id:
+            messages.error(request, 'Please select a customer.')
+            return render(request, "feature/invoice_form.html", {
+                "invoice": invoice,
+                "customers": customers,
+                "status_choices": Invoice.STATUS_CHOICES,
+            })
+
+        try:
+            customer = Customer.objects.get(id=customer_id, owner=request.user)
+        except Customer.DoesNotExist:
+            messages.error(request, 'Invalid customer selected.')
+            return render(request, "feature/invoice_form.html", {
+                "invoice": invoice,
+                "customers": customers,
+                "status_choices": Invoice.STATUS_CHOICES,
+            })
+
+        try:
+            amount_value = Decimal(amount)
+        except (InvalidOperation, TypeError):
+            messages.error(request, 'Please enter a valid amount greater than 0.')
+            return render(request, "feature/invoice_form.html", {
+                "invoice": invoice,
+                "customers": customers,
+                "status_choices": Invoice.STATUS_CHOICES,
+            })
+
+        if amount_value <= 0:
+            messages.error(request, 'Please enter a valid amount greater than 0.')
+            return render(request, "feature/invoice_form.html", {
+                "invoice": invoice,
+                "customers": customers,
+                "status_choices": Invoice.STATUS_CHOICES,
+            })
+
+        due_date_value = None
+        if due_date:
+            try:
+                due_date_value = datetime.strptime(due_date, '%Y-%m-%d').date()
+            except ValueError:
+                messages.error(request, 'Please enter a valid due date.')
+                return render(request, "feature/invoice_form.html", {
+                    "invoice": invoice,
+                    "customers": customers,
+                    "status_choices": Invoice.STATUS_CHOICES,
+                })
+
+        invoice.customer = customer
+        invoice.amount = amount_value
+        invoice.status = status
+        invoice.description = description
+        invoice.due_date = due_date_value
+        invoice.user = request.user
+        invoice.save()
+
+        messages.success(request, f'Invoice #{invoice.id} updated successfully!')
+        return redirect('feature:invoice_detail', invoice_id=invoice.id)
+
+    return render(request, "feature/invoice_form.html", {
+        "invoice": invoice,
+        "customers": customers,
+        "status_choices": Invoice.STATUS_CHOICES,
+    })
 
 
 @login_required
