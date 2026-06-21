@@ -10,8 +10,6 @@ from django.views.decorators.http import require_POST
 from .notification_utils import get_user_notifications, mark_all_as_read, get_unread_count
 
 
-
-
 def home(request):
     """Public home page"""
     return render(request, 'feature/home.html')
@@ -155,11 +153,13 @@ def invoices(request):
         invoices = Invoice.objects.filter(
             Q(customer__owner=request.user) | Q(user=request.user)
         ).distinct()
+        customers = Customer.objects.filter(owner=request.user)
         context = {
             "invoices": invoices,
             "invoices_count": invoices.count(),
             "invoices_unpaid": invoices.filter(status="unpaid").count(),
             "invoices_paid": invoices.filter(status="paid").count(),
+            "customers": customers,
             "user_logged_in": True,
         }
     else:
@@ -168,10 +168,65 @@ def invoices(request):
             "invoices_count": 0,
             "invoices_unpaid": 0,
             "invoices_paid": 0,
+            "customers": [],
             "user_logged_in": False,
             "login_required": True,
         }
     return render(request, "feature/invoices.html", context)
+
+
+@login_required
+def add_invoice(request):
+    """Add a new invoice"""
+    if request.method == 'POST':
+        customer_id = request.POST.get('customer')
+        amount = request.POST.get('amount')
+        status = request.POST.get('status')
+        description = request.POST.get('description', '')
+        due_date = request.POST.get('due_date')
+        
+        # Validation
+        if not customer_id:
+            messages.error(request, 'Please select a customer.')
+            return redirect('feature:invoices')
+        
+        if not amount or float(amount) <= 0:
+            messages.error(request, 'Please enter a valid amount greater than 0.')
+            return redirect('feature:invoices')
+        
+        if not status:
+            messages.error(request, 'Please select a status.')
+            return redirect('feature:invoices')
+        
+        # Check if customer exists and belongs to this user
+        try:
+            customer = Customer.objects.get(id=customer_id, owner=request.user)
+        except Customer.DoesNotExist:
+            messages.error(request, 'Invalid customer selected.')
+            return redirect('feature:invoices')
+        
+        # Create the invoice
+        invoice = Invoice.objects.create(
+            customer=customer,
+            amount=amount,
+            status=status,
+            description=description,
+            user=request.user,
+        )
+        
+        # Set due date if provided
+        if due_date:
+            try:
+                invoice.due_date = datetime.strptime(due_date, '%Y-%m-%d').date()
+                invoice.save()
+            except ValueError:
+                pass  # Ignore invalid date format
+        
+        messages.success(request, f'Invoice #{invoice.id} created successfully for {customer.name}!')
+        return redirect('feature:invoices')
+    
+    # If not POST, redirect back to invoices page
+    return redirect('feature:invoices')
 
 
 # ========== PROTECTED VIEWS (Require Login for Actions) ==========
@@ -337,8 +392,6 @@ def appointment_delete(request, appointment_id):
     return render(request, "feature/appointment_confirm_delete.html", context)
 
 
-
-
 @login_required
 def settings(request):
     user = request.user
@@ -347,13 +400,11 @@ def settings(request):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         
-        
         appointment_notifications = request.POST.get('appointment_notifications') == 'on'
         invoice_notifications = request.POST.get('invoice_notifications') == 'on'
         customer_notifications = request.POST.get('customer_notifications') == 'on'
         reminder_notifications = request.POST.get('reminder_notifications') == 'on'
         system_notifications = request.POST.get('system_notifications') == 'on'
-        
         
         request.session['notification_preferences'] = {
             'appointment_notifications': appointment_notifications,
@@ -390,8 +441,6 @@ def settings(request):
         "unread_notifications": Notification.objects.filter(user=user, is_read=False).count(),
     }
     return render(request, "feature/settings.html", context)
-
-
 
 
 def notification_center(request):

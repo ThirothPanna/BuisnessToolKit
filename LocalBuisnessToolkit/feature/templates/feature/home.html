@@ -15,8 +15,218 @@
     />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="{% static 'home.css' %}" />
+    <style>
+      /* Hero Section */
+      .hero-section {
+        min-height: 70vh;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-section::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(
+          circle,
+          rgba(13, 110, 253, 0.05) 0%,
+          transparent 70%
+        );
+        border-radius: 50%;
+        pointer-events: none;
+      }
+
+      .hero-title {
+        font-size: 4rem;
+        font-weight: 800;
+        color: #1a1a2e;
+        line-height: 1.2;
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero-title span {
+        background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero-subtitle {
+        font-size: 1.25rem;
+        color: #6c757d;
+        max-width: 500px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* About Section */
+      .about-section {
+        padding: 5rem 0;
+        background: white;
+      }
+
+      .about-section h2 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+      }
+
+      .about-section h2::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+        border-radius: 2px;
+      }
+
+      .about-text {
+        font-size: 1.1rem;
+        color: #495057;
+        line-height: 1.8;
+      }
+
+      .about-image {
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+
+      .about-image:hover {
+        transform: scale(1.02);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Team Section */
+      .team-section {
+        padding: 5rem 0;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      }
+
+      .team-section h2 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #1a1a2e;
+        position: relative;
+        display: inline-block;
+      }
+
+      .team-section h2::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+        border-radius: 2px;
+      }
+
+      .team-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        height: 100%;
+      }
+
+      .team-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 60px rgba(13, 110, 253, 0.1);
+        border-color: rgba(13, 110, 253, 0.1);
+      }
+
+      .team-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.25rem;
+        font-size: 2.5rem;
+        color: white;
+        font-weight: 700;
+        box-shadow: 0 8px 25px rgba(13, 110, 253, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .team-card:hover .team-avatar {
+        transform: scale(1.05);
+        box-shadow: 0 12px 35px rgba(13, 110, 253, 0.3);
+      }
+
+      .team-name {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 0;
+      }
+
+      /* Responsive */
+      @media (max-width: 992px) {
+        .hero-title {
+          font-size: 3rem;
+        }
+
+        .hero-section {
+          min-height: 60vh;
+        }
+
+        .hero-section::before {
+          display: none;
+        }
+
+        .about-section h2,
+        .team-section h2 {
+          font-size: 2.2rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2.2rem;
+        }
+
+        .hero-section {
+          min-height: 50vh;
+        }
+
+        .team-avatar {
+          width: 80px;
+          height: 80px;
+          font-size: 2rem;
+        }
+
+        .about-section {
+          padding: 3rem 0;
+        }
+
+        .team-section {
+          padding: 3rem 0;
+        }
+      }
+    </style>
   </head>
   <body class="bg-light">
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
       <div class="container-fluid">
         <a class="navbar-brand fw-bold fs-3" href="#">EXPERT LIFE</a>
@@ -84,28 +294,45 @@
             </li>
             {% if user.is_authenticated %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle fw-bold text-white fs-5" href="#" role="button" data-bs-toggle="dropdown">
+              <a
+                class="nav-link dropdown-toggle fw-bold text-white fs-5"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
                 <i class="fas fa-user-circle"></i> {{ user.username }}
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'feature:settings' %}"><i class="fas fa-cog"></i> Settings</a></li>
-                <li><hr class="dropdown-divider"/></li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'feature:settings' %}"
+                    ><i class="fas fa-cog"></i> Settings</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
                 <li>
                   <form method="post" action="{% url 'account_logout' %}">
                     {% csrf_token %}
-                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    <button type="submit" class="dropdown-item">
+                      <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
                   </form>
                 </li>
               </ul>
             </li>
             {% else %}
             <li class="nav-item">
-              <a class="nav-link fw-bold btn btn-outline-light ms-2 px-3" href="{% url 'account_login' %}">
+              <a
+                class="nav-link fw-bold btn btn-outline-light ms-2 px-3"
+                href="{% url 'account_login' %}"
+              >
                 <i class="fas fa-sign-in-alt"></i> Sign In
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link fw-bold btn btn-primary ms-2 px-3 text-white" href="{% url 'account_signup' %}">
+              <a
+                class="nav-link fw-bold btn btn-primary ms-2 px-3 text-white"
+                href="{% url 'account_signup' %}"
+              >
                 <i class="fas fa-user-plus"></i> Sign Up
               </a>
             </li>
@@ -115,37 +342,140 @@
       </div>
     </nav>
 
-    <section
-      class="container d-flex justify-content-center align-items-center"
-      style="height: 70vh"
-    >
-      <h1 class="fw-bold text-dark display-4 text-center">
-        Everything You need <br />
-        as a Small Business Owner
-      </h1>
-    </section>
-
-    <section class="container my-5" id="about">
-      <div class="row align-items-center">
-        <!-- Text content -->
-        <div class="col-lg-6">
-          <h2 class="fw-bold mb-4">About Us</h2>
-          <p class="fs-5 text-muted">
-            At Expert Life, we provide small business owners with the tools they
-            need to manage appointments, customers, invoices, and more — all in
-            one place. Our mission is to simplify your workflow so you can focus
-            on growing your business.
-          </p>
-        </div>
-        <!-- Image content -->
-        <div class="col-lg-6 text-center">
-          <img
-            src="{% static 'img/aboutus.jpg' %}"
-            class="img-fluid rounded shadow about-popup"
-            alt="About Expert Life"
-          />
+    <!-- Hero Section -->
+    <section class="hero-section d-flex align-items-center">
+      <div class="container text-center">
+        <h1 class="hero-title">
+          Everything You Need <br />
+          as a <span>Small Business</span> Owner
+        </h1>
+        <p class="hero-subtitle mt-3">
+          Manage appointments, customers, invoices, and more — all in one
+          powerful platform.
+        </p>
+        <div class="mt-4">
+          <a
+            href="{% url 'feature:dashboard' %}"
+            class="btn btn-primary btn-lg px-5 me-2"
+          >
+            <i class="fas fa-rocket me-2"></i>Get Started
+          </a>
+          <a href="#about" class="btn btn-outline-secondary btn-lg px-5">
+            <i class="fas fa-info-circle me-2"></i>Learn More
+          </a>
         </div>
       </div>
     </section>
+
+    <!-- About Section -->
+    <section class="about-section" id="about">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6">
+            <h2 class="mb-4">About Us</h2>
+            <p class="about-text">
+              At <strong>Expert Life</strong>, we provide small business owners
+              with the tools they need to manage appointments, customers,
+              invoices, and more — all in one place. Our mission is to simplify
+              your workflow so you can focus on growing your business.
+            </p>
+            <div class="mt-4">
+              <div class="row g-3">
+                <div class="col-sm-6">
+                  <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle text-primary me-2"></i>
+                    <span>Easy to Use</span>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle text-primary me-2"></i>
+                    <span>Secure & Reliable</span>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle text-primary me-2"></i>
+                    <span>24/7 Support</span>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle text-primary me-2"></i>
+                    <span>Free Updates</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 text-center mt-4 mt-lg-0">
+            <img
+              src="{% static 'img/aboutus.jpg' %}"
+              class="img-fluid about-image"
+              alt="About Expert Life"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team-section" id="team">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2>Meet Our Team</h2>
+          <p class="text-muted mt-3 fs-5">
+            The talented people behind Expert Life
+          </p>
+        </div>
+        <div class="row g-4 justify-content-center">
+          <!-- Team Member 1 -->
+          <div class="col-lg-2 col-md-4 col-6">
+            <div class="team-card">
+              <div class="team-avatar">SP</div>
+              <h5 class="team-name">Suy Panna Thiroth</h5>
+            </div>
+          </div>
+          <!-- Team Member 2 -->
+          <div class="col-lg-2 col-md-4 col-6">
+            <div class="team-card">
+              <div class="team-avatar">OT</div>
+              <h5 class="team-name">Oem Thanun</h5>
+            </div>
+          </div>
+          <!-- Team Member 3 -->
+          <div class="col-lg-2 col-md-4 col-6">
+            <div class="team-card">
+              <div class="team-avatar">UC</div>
+              <h5 class="team-name">Uth Chan Rithy</h5>
+            </div>
+          </div>
+          <!-- Team Member 4 -->
+          <div class="col-lg-2 col-md-4 col-6">
+            <div class="team-card">
+              <div class="team-avatar">VR</div>
+              <h5 class="team-name">Vannda Rasy</h5>
+            </div>
+          </div>
+          <!-- Team Member 5 -->
+          <div class="col-lg-2 col-md-4 col-6">
+            <div class="team-card">
+              <div class="team-avatar">SF</div>
+              <h5 class="team-name">Seth Fary</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+      <div class="container text-center">
+        <p class="mb-0">&copy; 2026 Expert Life. All rights reserved.</p>
+        <p class="text-muted small mb-0">
+          Built with <i class=""></i> by Team Expert Life
+        </p>
+      </div>
+    </footer>
   </body>
 </html>
