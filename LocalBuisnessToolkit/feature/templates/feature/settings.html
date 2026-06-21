@@ -1,0 +1,267 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings - Expert Life</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'home.css' %}" />
+    <style>
+        .settings-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        .settings-card:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+        .settings-header {
+            background: linear-gradient(135deg, #1e6f5c, #2c8b76);
+            color: white;
+            padding: 2rem;
+            border-radius: 16px 16px 0 0;
+        }
+        .settings-header h2 {
+            margin: 0;
+            font-weight: 700;
+        }
+        .settings-header p {
+            opacity: 0.9;
+            margin: 0;
+        }
+        .settings-body {
+            padding: 2rem;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #1e6f5c;
+            box-shadow: 0 0 0 3px rgba(30, 111, 92, 0.15);
+        }
+        .form-control:disabled {
+            background: #f3f4f6;
+            cursor: not-allowed;
+        }
+        .btn-save {
+            background: #1e6f5c;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 40px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-save:hover {
+            background: #0e5948;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 111, 92, 0.4);
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        .stat-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .stat-value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .danger-zone {
+            border: 2px solid #fecaca;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            background: #fef2f2;
+        }
+        .danger-zone h5 {
+            color: #dc2626;
+            font-weight: 700;
+        }
+        .btn-danger-custom {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-danger-custom:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        }
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold fs-3 text-white" href="#">EXPERT LIFE</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:home' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:dashboard' %}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:appointments' %}">Appointments</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:customers' %}">Customers</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:invoices' %}">Invoices</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-white fs-5" href="{% url 'feature:notifications' %}">Notifications</a></li>
+                    <li class="nav-item"><a class="nav-link active fw-bold text-white fs-5" href="{% url 'feature:settings' %}">Settings</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle fw-bold text-white fs-5" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'feature:settings' %}"><i class="fas fa-cog"></i> Settings</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <form method="post" action="{% url 'account_logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="settings-card">
+                    <div class="settings-header">
+                        <h2><i class="fas fa-cog me-2"></i>Settings</h2>
+                        <p>Manage your profile and account preferences</p>
+                    </div>
+                    <div class="settings-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <div class="mb-4">
+                                <h5 class="fw-bold mb-3"><i class="fas fa-user me-2"></i>Personal Information</h5>
+                                
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="username" value="{{ user.username }}" disabled>
+                                    <small class="text-muted">Username cannot be changed</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email" value="{{ user.email }}" disabled>
+                                    <small class="text-muted">Email cannot be changed</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="first_name" class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" placeholder="Enter your first name">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="last_name" class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" placeholder="Enter your last name">
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="mb-4">
+                                <h5 class="fw-bold mb-3"><i class="fas fa-chart-bar me-2"></i>Account Statistics</h5>
+                                <div class="stat-item">
+                                    <span class="stat-label"><i class="fas fa-users me-2"></i>Total Customers</span>
+                                    <span class="stat-value">{{ customers_count|default:0 }}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label"><i class="fas fa-calendar-alt me-2"></i>Total Appointments</span>
+                                    <span class="stat-value">{{ appointments_count|default:0 }}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label"><i class="fas fa-file-invoice-dollar me-2"></i>Total Invoices</span>
+                                    <span class="stat-value">{{ invoices_count|default:0 }}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label"><i class="fas fa-bell me-2"></i>Unread Notifications</span>
+                                    <span class="stat-value">{{ unread_notifications|default:0 }}</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-save w-100">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </form>
+
+                        <!-- Danger Zone -->
+                        <div class="danger-zone">
+                            <h5><i class="fas fa-exclamation-triangle me-2"></i>Danger Zone</h5>
+                            <p class="text-muted">Permanently delete your account and all associated data.</p>
+                            <button class="btn-danger-custom" onclick="confirmDelete()">
+                                <i class="fas fa-trash me-2"></i>Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-hide alerts after 4 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 500);
+            });
+        }, 4000);
+
+        function confirmDelete() {
+            if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                if (confirm('All your data will be permanently removed. Are you absolutely sure?')) {
+                    // Redirect to delete account URL (you need to implement this)
+                    window.location.href = '{% url "account_logout" %}';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

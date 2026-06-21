@@ -431,3 +431,28 @@ def delete_notification(request, notification_id):
     notification = get_object_or_404(Notification, id=notification_id, user=request.user)
     notification.delete()
     return JsonResponse({'success': True})
+@login_required
+def settings(request):
+    user = request.user
+    
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        
+        if first_name:
+            user.first_name = first_name
+        if last_name:
+            user.last_name = last_name
+        user.save()
+        
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('feature:settings')
+    
+    context = {
+        "user": user,
+        "customers_count": Customer.objects.filter(owner=user).count(),
+        "appointments_count": Appointment.objects.filter(user=user).count(),
+        "invoices_count": Invoice.objects.filter(user=user).count(),
+        "unread_notifications": Notification.objects.filter(user=user, is_read=False).count(),
+    }
+    return render(request, "feature/settings.html", context)

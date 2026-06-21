@@ -32,6 +32,20 @@
             <li class="nav-item">
               <a
                 class="nav-link fw-bold text-white fs-5"
+                href="{% url 'feature:home' %}"
+                >Home</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link fw-bold text-white fs-5"
+                href="{% url 'feature:dashboard' %}"
+                >Dashboard</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link active fw-bold text-white fs-5"
                 href="{% url 'feature:appointments' %}"
                 >Appointments</a
               >
@@ -41,6 +55,27 @@
                 class="nav-link fw-bold text-white fs-5"
                 href="{% url 'feature:customers' %}"
                 >Customers</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link fw-bold text-white fs-5"
+                href="{% url 'feature:invoices' %}"
+                >Invoices</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link fw-bold text-white fs-5"
+                href="{% url 'feature:notifications' %}"
+                >Notifications</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link fw-bold text-white fs-5"
+                href="{% url 'feature:settings' %}"
+                >Settings</a
               >
             </li>
             {% if user.is_authenticated %}
