@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 from .notification_utils import get_user_notifications, mark_all_as_read, get_unread_count
 
 
-# ========== PUBLIC VIEWS (Anyone can view) ==========
+
 
 def home(request):
     """Public home page"""
@@ -55,7 +55,7 @@ def dashboard(request):
             "user_logged_in": True,
         }
     else:
-        # Non-logged in users see a demo/preview
+       
         context = {
             "message": "Sign in to manage your appointments, customers, and invoices",
             "appointments_count": "?",
@@ -124,7 +124,6 @@ def add_customer(request):
         name = request.POST.get('name')
         email = request.POST.get('email')
         phone = request.POST.get('phone')
-        
         
         if not name or not email:
             messages.error(request, 'Name and Email are required fields.')
@@ -338,6 +337,8 @@ def appointment_delete(request, appointment_id):
     return render(request, "feature/appointment_confirm_delete.html", context)
 
 
+
+
 @login_required
 def settings(request):
     user = request.user
@@ -346,19 +347,51 @@ def settings(request):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         
+        
+        appointment_notifications = request.POST.get('appointment_notifications') == 'on'
+        invoice_notifications = request.POST.get('invoice_notifications') == 'on'
+        customer_notifications = request.POST.get('customer_notifications') == 'on'
+        reminder_notifications = request.POST.get('reminder_notifications') == 'on'
+        system_notifications = request.POST.get('system_notifications') == 'on'
+        
+        
+        request.session['notification_preferences'] = {
+            'appointment_notifications': appointment_notifications,
+            'invoice_notifications': invoice_notifications,
+            'customer_notifications': customer_notifications,
+            'reminder_notifications': reminder_notifications,
+            'system_notifications': system_notifications,
+        }
+        
         if first_name:
             user.first_name = first_name
         if last_name:
             user.last_name = last_name
         user.save()
         
-        messages.success(request, 'Profile updated successfully!')
+        messages.success(request, 'Settings updated successfully!')
         return redirect('feature:settings')
+    
+    # Get preferences from session
+    user_preferences = request.session.get('notification_preferences', {
+        'appointment_notifications': True,
+        'invoice_notifications': True,
+        'customer_notifications': True,
+        'reminder_notifications': True,
+        'system_notifications': True,
+    })
     
     context = {
         "user": user,
+        "user_preferences": user_preferences,
+        "customers_count": Customer.objects.filter(owner=user).count(),
+        "appointments_count": Appointment.objects.filter(user=user).count(),
+        "invoices_count": Invoice.objects.filter(user=user).count(),
+        "unread_notifications": Notification.objects.filter(user=user, is_read=False).count(),
     }
     return render(request, "feature/settings.html", context)
+
+
 
 
 def notification_center(request):
@@ -431,28 +464,3 @@ def delete_notification(request, notification_id):
     notification = get_object_or_404(Notification, id=notification_id, user=request.user)
     notification.delete()
     return JsonResponse({'success': True})
-@login_required
-def settings(request):
-    user = request.user
-    
-    if request.method == 'POST':
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        
-        if first_name:
-            user.first_name = first_name
-        if last_name:
-            user.last_name = last_name
-        user.save()
-        
-        messages.success(request, 'Profile updated successfully!')
-        return redirect('feature:settings')
-    
-    context = {
-        "user": user,
-        "customers_count": Customer.objects.filter(owner=user).count(),
-        "appointments_count": Appointment.objects.filter(user=user).count(),
-        "invoices_count": Invoice.objects.filter(user=user).count(),
-        "unread_notifications": Notification.objects.filter(user=user, is_read=False).count(),
-    }
-    return render(request, "feature/settings.html", context)

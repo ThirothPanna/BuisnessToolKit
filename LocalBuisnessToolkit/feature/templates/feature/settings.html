@@ -113,6 +113,93 @@
             border-radius: 10px;
             border: none;
         }
+        
+        /* ===== NEW NOTIFICATION SETTINGS STYLES ===== */
+        .notification-setting {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .notification-setting:last-child {
+            border-bottom: none;
+        }
+        .notification-setting .info {
+            flex: 1;
+        }
+        .notification-setting .info .title {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .notification-setting .info .desc {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background: #1e6f5c;
+        }
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        .toggle-switch input:disabled + .toggle-slider {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .badge-preference {
+            background: #e5e7eb;
+            color: #374151;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-preference.active {
+            background: #1e6f5c;
+            color: white;
+        }
+        .section-title {
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        /* ===== END NOTIFICATION SETTINGS STYLES ===== */
     </style>
 </head>
 <body class="bg-light">
@@ -157,7 +244,7 @@
                 <div class="settings-card">
                     <div class="settings-header">
                         <h2><i class="fas fa-cog me-2"></i>Settings</h2>
-                        <p>Manage your profile and account preferences</p>
+                        <p>Manage your profile, notification preferences, and account</p>
                     </div>
                     <div class="settings-body">
                         {% if messages %}
@@ -173,8 +260,9 @@
                         <form method="post">
                             {% csrf_token %}
                             
+                            <!-- ===== SECTION 1: PERSONAL INFORMATION ===== -->
                             <div class="mb-4">
-                                <h5 class="fw-bold mb-3"><i class="fas fa-user me-2"></i>Personal Information</h5>
+                                <h5 class="section-title"><i class="fas fa-user me-2"></i>Personal Information</h5>
                                 
                                 <div class="mb-3">
                                     <label for="username" class="form-label">Username</label>
@@ -201,8 +289,92 @@
 
                             <hr>
 
+                            <!-- ===== SECTION 2: NOTIFICATION SETTINGS (ADD THIS SECTION) ===== -->
                             <div class="mb-4">
-                                <h5 class="fw-bold mb-3"><i class="fas fa-chart-bar me-2"></i>Account Statistics</h5>
+                                <h5 class="section-title"><i class="fas fa-bell me-2"></i>Notification Preferences</h5>
+                                <p class="text-muted small mb-3">Choose which notifications you want to receive</p>
+                                
+                                <!-- Notification: Appointments -->
+                                <div class="notification-setting">
+                                    <div class="info">
+                                        <div class="title">
+                                            <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                                            Appointment Notifications
+                                        </div>
+                                        <div class="desc">Get notified when appointments are created, updated, or cancelled</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" name="appointment_notifications" {% if user_preferences.appointment_notifications %}checked{% endif %}>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                                <!-- Notification: Invoices -->
+                                <div class="notification-setting">
+                                    <div class="info">
+                                        <div class="title">
+                                            <i class="fas fa-file-invoice-dollar me-2 text-success"></i>
+                                            Invoice Notifications
+                                        </div>
+                                        <div class="desc">Get notified when invoices are created or marked as paid</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" name="invoice_notifications" {% if user_preferences.invoice_notifications %}checked{% endif %}>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                                <!-- Notification: Customers -->
+                                <div class="notification-setting">
+                                    <div class="info">
+                                        <div class="title">
+                                            <i class="fas fa-users me-2 text-info"></i>
+                                            Customer Notifications
+                                        </div>
+                                        <div class="desc">Get notified when customers are added or updated</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" name="customer_notifications" {% if user_preferences.customer_notifications %}checked{% endif %}>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                                <!-- Notification: Reminders -->
+                                <div class="notification-setting">
+                                    <div class="info">
+                                        <div class="title">
+                                            <i class="fas fa-clock me-2 text-warning"></i>
+                                            Reminder Notifications
+                                        </div>
+                                        <div class="desc">Get reminders about upcoming appointments and tasks</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" name="reminder_notifications" {% if user_preferences.reminder_notifications %}checked{% endif %}>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                                <!-- Notification: System -->
+                                <div class="notification-setting">
+                                    <div class="info">
+                                        <div class="title">
+                                            <i class="fas fa-cog me-2 text-secondary"></i>
+                                            System Notifications
+                                        </div>
+                                        <div class="desc">Get system updates, announcements, and maintenance alerts</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" name="system_notifications" {% if user_preferences.system_notifications %}checked{% endif %}>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- ===== SECTION 3: ACCOUNT STATISTICS ===== -->
+                            <div class="mb-4">
+                                <h5 class="section-title"><i class="fas fa-chart-bar me-2"></i>Account Statistics</h5>
                                 <div class="stat-item">
                                     <span class="stat-label"><i class="fas fa-users me-2"></i>Total Customers</span>
                                     <span class="stat-value">{{ customers_count|default:0 }}</span>
@@ -222,14 +394,14 @@
                             </div>
 
                             <button type="submit" class="btn-save w-100">
-                                <i class="fas fa-save me-2"></i>Save Changes
+                                <i class="fas fa-save me-2"></i>Save All Changes
                             </button>
                         </form>
 
-                        <!-- Danger Zone -->
+                        <!-- ===== DANGER ZONE ===== -->
                         <div class="danger-zone">
                             <h5><i class="fas fa-exclamation-triangle me-2"></i>Danger Zone</h5>
-                            <p class="text-muted">Permanently delete your account and all associated data.</p>
+                            <p class="text-muted">Permanently delete your account and all associated data. This action cannot be undone.</p>
                             <button class="btn-danger-custom" onclick="confirmDelete()">
                                 <i class="fas fa-trash me-2"></i>Delete Account
                             </button>
@@ -262,6 +434,14 @@
                 }
             }
         }
+
+        // ===== TOGGLE SWITCH VISUAL FEEDBACK =====
+        document.querySelectorAll('.toggle-switch input').forEach(function(toggle) {
+            toggle.addEventListener('change', function() {
+                // You can add additional logic here if needed
+                console.log(this.name + ' is now ' + (this.checked ? 'ON' : 'OFF'));
+            });
+        });
     </script>
 </body>
 </html>
