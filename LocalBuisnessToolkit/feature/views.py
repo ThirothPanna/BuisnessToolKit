@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q
+from decimal import Decimal, InvalidOperation
 from datetime import datetime
 from .models import Appointment, Customer, Invoice, Notification
 from django.http import JsonResponse
@@ -190,7 +191,13 @@ def add_invoice(request):
             messages.error(request, 'Please select a customer.')
             return redirect('feature:invoices')
         
-        if not amount or float(amount) <= 0:
+        try:
+            amount_value = Decimal(amount)
+        except (InvalidOperation, TypeError):
+            messages.error(request, 'Please enter a valid amount greater than 0.')
+            return redirect('feature:invoices')
+
+        if amount_value <= 0:
             messages.error(request, 'Please enter a valid amount greater than 0.')
             return redirect('feature:invoices')
         
@@ -205,23 +212,24 @@ def add_invoice(request):
             messages.error(request, 'Invalid customer selected.')
             return redirect('feature:invoices')
         
+        due_date_value = None
+        if due_date:
+            try:
+                due_date_value = datetime.strptime(due_date, '%Y-%m-%d').date()
+            except ValueError:
+                messages.error(request, 'Please enter a valid due date.')
+                return redirect('feature:invoices')
+
         # Create the invoice
         invoice = Invoice.objects.create(
             customer=customer,
-            amount=amount,
+            amount=amount_value,
             status=status,
             description=description,
             user=request.user,
+            due_date=due_date_value,
         )
-        
-        # Set due date if provided
-        if due_date:
-            try:
-                invoice.due_date = datetime.strptime(due_date, '%Y-%m-%d').date()
-                invoice.save()
-            except ValueError:
-                pass  # Ignore invalid date format
-        
+
         messages.success(request, f'Invoice #{invoice.id} created successfully for {customer.name}!')
         return redirect('feature:invoices')
     

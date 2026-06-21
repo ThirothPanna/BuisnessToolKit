@@ -38,7 +38,6 @@ class Appointment(models.Model):
     date = models.DateTimeField()
     notes = models.TextField(blank=True, null=True)
     
-    # Add user field for notifications
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -66,23 +65,25 @@ class Appointment(models.Model):
 
 class Invoice(models.Model):
     STATUS_CHOICES = [
-        ("paid", "Paid"),
-        ("unpaid", "Unpaid"),
-        ("pending", "Pending"),
+        ('paid', 'Paid'),
+        ('unpaid', 'Unpaid'),
+        ('pending', 'Pending'),
+        ('overdue', 'Overdue'),
     ]
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="invoices")
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
-    created_at = models.DateTimeField(auto_now_add=True)
     
-    # Add user field for notifications
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='invoices')
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="invoices",
-        blank=True,
-        null=True,
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True
     )
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='unpaid')
+    description = models.TextField(blank=True, null=True)
+    due_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     @property
     def customer_name(self):
@@ -126,7 +127,6 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     
-    # For linking to specific objects (appointment, invoice, etc.)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -138,7 +138,6 @@ class Notification(models.Model):
         return f"{self.user.username} - {self.title}"
     
     def time_ago(self):
-        """Returns human-readable time difference"""
         now = timezone.now()
         diff = now - self.created_at
         
