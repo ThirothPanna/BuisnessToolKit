@@ -9,5 +9,4 @@ class FeatureConfig(AppConfig):
         try:
             import feature.signals  # noqa: F401
         except Exception:
-            # Avoid failing app import during migrations or if signals have issues
             pass

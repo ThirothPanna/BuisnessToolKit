@@ -37,27 +37,61 @@ def dashboard(request):
     or showing a preview/message that they need to login
     """
     if request.user.is_authenticated:
-        # Logged in users see their real data
-        customers = Customer.objects.filter(owner=request.user)
-        appointments = Appointment.objects.filter(customer__owner=request.user)
-        invoices = Invoice.objects.filter(customer__owner=request.user)
-        notifications = Notification.objects.filter(user=request.user)
-        
-        context = {
-            "message": f"Welcome {request.user.username}",
-            "appointments_count": appointments.count(),
-            "customers_count": customers.count(),
-            "invoices_unpaid": invoices.filter(status="unpaid").count(),
-            "notifications_count": notifications.count(),
-            "recent_appointments": appointments.order_by("-date")[:5],
-            "recent_invoices": invoices.order_by("-created_at")[:5],
-            # Ensure template doesn't crash even if older DB rows have missing columns after schema changes
-            # (e.g., migrations not applied). We defensively access only fields that are guaranteed to exist.
-
-            "user_logged_in": True,
-        }
+        try:
+            # Get data safely
+            customers = Customer.objects.filter(owner=request.user)
+            appointments = Appointment.objects.filter(customer__owner=request.user)
+            notifications = Notification.objects.filter(user=request.user)
+            
+            # Handle invoices with error protection
+            try:
+                invoices = Invoice.objects.filter(customer__owner=request.user)
+                
+                # Filter valid invoices only
+                valid_invoices = []
+                for inv in invoices:
+                    try:
+                        # Test if amount is valid
+                        float(inv.amount)
+                        valid_invoices.append(inv)
+                    except (ValueError, TypeError, InvalidOperation):
+                        # Skip invalid invoices
+                        continue
+                
+                # Count unpaid invoices
+                invoices_unpaid_count = sum(1 for inv in valid_invoices if inv.status == "unpaid")
+                
+                # Get recent invoices (sorted by created_at)
+                recent_invoices = sorted(valid_invoices, key=lambda x: x.created_at, reverse=True)[:5]
+                
+            except Exception as e:
+                print(f"Invoice error: {e}")
+                invoices_unpaid_count = 0
+                recent_invoices = []
+            
+            context = {
+                "message": f"Welcome {request.user.username}",
+                "appointments_count": appointments.count(),
+                "customers_count": customers.count(),
+                "invoices_unpaid": invoices_unpaid_count,
+                "notifications_count": notifications.count(),
+                "recent_appointments": appointments.order_by("-date")[:5],
+                "recent_invoices": recent_invoices,
+                "user_logged_in": True,
+            }
+        except Exception as e:
+            print(f"Dashboard error: {e}")
+            context = {
+                "message": f"Welcome {request.user.username}",
+                "appointments_count": 0,
+                "customers_count": 0,
+                "invoices_unpaid": 0,
+                "notifications_count": 0,
+                "recent_appointments": [],
+                "recent_invoices": [],
+                "user_logged_in": True,
+            }
     else:
-       
         context = {
             "message": "Sign in to manage your appointments, customers, and invoices",
             "appointments_count": "?",
@@ -70,8 +104,6 @@ def dashboard(request):
             "login_required": True,
         }
     return render(request, "feature/dashboard.html", context)
-
-
 def appointment(request):
     """
     Anyone can VIEW the appointments list, but to interact (create/edit/delete)
